@@ -1,8 +1,15 @@
-*{
+* {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
   padding: 0;
+}
+
+.score-box {
+  position: absolute;
+  color: white;
+  padding: 2rem;
+  font-size: 2rem;
 }
