@@ -1,5 +1,7 @@
 const canvas = document.querySelector("canvas");
 const scoreEl = document.querySelector("#score-el");
+const modal = document.querySelector(".game-over-box");
+const modalScore = document.querySelector("#modal-score");
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -182,9 +184,12 @@ function animate() {
 
     const distance = Math.hypot(player.x - enemy.x, player.y - enemy.y);
 
+    // end game
     if (distance - enemy.radius - player.radius < 1) {
       // stop game when enemy touches player
       cancelAnimationFrame(animationId);
+      modal.style.display = "block";
+      modalScore.innerHTML = score;
     }
 
     for (
@@ -223,14 +228,14 @@ function animate() {
           gsap.to(enemy, {
             radius: enemy.radius - 10,
           });
-          projectiles.splice(projectileIndex, 1);
+          projectiles.splice(projectilesIndex, 1);
         } else {
           // remove enemy if they are too small
           score += 20;
           scoreEl.innerHTML = score;
 
           enemies.splice(index, 1);
-          projectiles.splice(projectileIndex, 1);
+          projectiles.splice(projectilesIndex, 1);
         }
       }
     }
