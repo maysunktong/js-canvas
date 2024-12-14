@@ -75,7 +75,7 @@ const enemies = [];
 
 function spawnEnemies() {
   setInterval(() => {
-    // Make sure enemies are not too small
+    // Make sure enemies sizes are not too small
     const radius = Math.random() * (30 - 10) + 10;
 
     let x;
@@ -106,22 +106,50 @@ function spawnEnemies() {
   }, 1000);
 }
 
+let animationId;
+
 // loop over animate()
 function animate() {
-  requestAnimationFrame(animate);
+  animationId = requestAnimationFrame(animate);
   // clear a rect
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   player.draw();
-  projectiles.forEach((projectile) => {
+  projectiles.forEach((projectile, index) => {
     projectile.update();
+    // remove from edges of screen
+    if (
+      projectile.x + projectile.radius < 0 ||
+      projectile.x - projectile.radius > canvas.width ||
+      projectile.y + projectile.radius < 0 ||
+      projectile.y - projectile.radius > canvas.height
+    ) {
+      setTimeout(() => {
+        projectiles.splice(index, 1);
+      }, 0);
+    }
   });
-  enemies.forEach((enemy) => {
-    enemy.update();
 
-    projectiles.foreEach(projectile =>{
-      // distance btw two points
-      const distance = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y)
-    })
+  enemies.forEach((enemy, index) => {
+    enemy.update();
+    const distance = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+    if (distance - enemy.radius - player.radius < 1) {
+      // stop game when enemy touches player
+      cancelAnimationFrame(animationId);
+    }
+    projectiles.forEach((projectile, projectileIndex) => {
+      const distance = Math.hypot(
+        projectile.x - enemy.x,
+        projectile.y - enemy.y
+      );
+      // setTimeout helps eliminating flashing effects
+      if (distance - enemy.radius - projectile.radius < 1) {
+        setTimeout(() => {
+          // Remove ones move onto player
+          enemies.splice(index, 1);
+          projectiles.splice(projectileIndex, 1);
+        }, 0);
+      }
+    });
   });
 }
 
