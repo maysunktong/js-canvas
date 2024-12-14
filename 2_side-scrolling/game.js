@@ -12,7 +12,7 @@ class Player {
     this.width = 30;
     this.height = 30;
     this.velocity = {
-      // positive number will go downwards
+      // player will draw downward only
       x: 0,
       y: 1,
     };
@@ -22,7 +22,20 @@ class Player {
     ctx.fillStyle = "red";
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
   }
+
+  update() {
+    this.position.y += this.velocity.y;
+    this.draw();
+  }
 }
 
 const player = new Player();
-player.draw();
+player.update();
+
+// animate()
+const animate = () => {
+  requestAnimationFrame(animate);
+  player.update();
+};
+
+animate();
