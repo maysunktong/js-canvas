@@ -2,6 +2,7 @@ const canvas = document.querySelector("canvas");
 const scoreEl = document.querySelector("#score-el");
 const modal = document.querySelector(".game-over-box");
 const modalScore = document.querySelector("#modal-score");
+const buttonEl = document.querySelector(".restart-btn");
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -42,8 +43,8 @@ class Projectile {
   }
   update() {
     this.draw();
-    this.x = this.x + this.velocity.x;
-    this.y = this.y + this.velocity.y;
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
   }
 }
 
@@ -63,8 +64,8 @@ class Enemy {
   }
   update() {
     this.draw();
-    this.x = this.x + this.velocity.x;
-    this.y = this.y + this.velocity.y;
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
   }
 }
 
@@ -91,9 +92,9 @@ class Particle {
     this.draw();
     this.velocity.x *= friction;
     this.velocity.y *= friction;
-    this.x = this.x + this.velocity.x;
-    this.y = this.y + this.velocity.y;
-    this.alpha -= 0.01;
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
+    this.alpha -= 0.02;
   }
 }
 
@@ -103,14 +104,26 @@ const x = canvas.width / 2;
 const y = canvas.height / 2;
 
 // create a new player
-const player = new Player(x, y, 10, "white");
+let player = new Player(x, y, 10, "white");
+let projectiles = [];
+let enemies = [];
+let particles = [];
+let animationId;
+let intervalId;
+let score = 0;
 
-const projectiles = [];
-const enemies = [];
-const particles = [];
+// initialization
+function init() {
+  player = new Player(x, y, 10, "white");
+  projectiles = [];
+  enemies = [];
+  particles = [];
+  animationId;
+  score = 0;
+}
 
 function spawnEnemies() {
-  setInterval(() => {
+  intervalId = setInterval(() => {
     // Make sure enemies sizes are not too small
     const radius = Math.random() * (30 - 10) + 10;
 
@@ -142,8 +155,6 @@ function spawnEnemies() {
   }, 1000);
 }
 
-let animationId;
-let score = 0;
 // loop over animate()
 function animate() {
   animationId = requestAnimationFrame(animate);
@@ -188,6 +199,7 @@ function animate() {
     if (distance - enemy.radius - player.radius < 1) {
       // stop game when enemy touches player
       cancelAnimationFrame(animationId);
+      clearInterval(intervalId);
       modal.style.display = "block";
       modalScore.innerHTML = score;
     }
@@ -206,7 +218,7 @@ function animate() {
       // when projectiles touch enemy
       if (distance - enemy.radius - projectile.radius < 1) {
         // one hit breaks into explosion
-        for (let i = 0; i < enemy.radius * 2; i++) {
+        for (let i = 0; i < enemy.radius; i++) {
           particles.push(
             new Particle(
               projectile.x,
@@ -242,7 +254,7 @@ function animate() {
   }
 }
 
-window.addEventListener("click", (event) => {
+addEventListener("click", (event) => {
   const angle = Math.atan2(
     event.clientY - canvas.height / 2,
     event.clientX - canvas.width / 2
@@ -256,6 +268,13 @@ window.addEventListener("click", (event) => {
   projectiles.push(
     new Projectile(canvas.width / 2, canvas.height / 2, 5, "white", velocity)
   );
+});
+
+buttonEl.addEventListener("click", () => {
+  init();
+  animate();
+  spawnEnemies();
+  modal.style.display = "none";
 });
 
 animate();

@@ -20,7 +20,7 @@ body {
 }
 
 .game-over-box {
-  /* display: none; */
+  display: none;
   border-radius: 8px;
   max-width: 500px;
   width: 100%;
@@ -36,6 +36,8 @@ body {
 
 .restart-btn {
   background-color: grey;
+  min-width: 100px;
   color: white;
   padding: 8px;
+  cursor: pointer;
 }
