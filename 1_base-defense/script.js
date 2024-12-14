@@ -95,7 +95,7 @@ class Particle {
     this.velocity.y *= friction;
     this.x += this.velocity.x;
     this.y += this.velocity.y;
-    this.alpha -= 0.02;
+    this.alpha -= 0.05;
   }
 }
 
@@ -109,19 +109,21 @@ let player = new Player(x, y, 10, "white");
 let projectiles = [];
 let enemies = [];
 let particles = [];
-let animationId;
+let animationId = null;
 let intervalId;
 let score = 0;
 
 // initialization
 function init() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clears entire canvas
   player = new Player(x, y, 10, "white");
   projectiles = [];
   enemies = [];
   particles = [];
-  animationId;
+  cancelAnimationFrame(animationId);
+  clearInterval(intervalId);
   score = 0;
-  scoreEl.innerHTML = 0;
+  scoreEl.innerHTML = score;
 }
 
 function spawnEnemies() {
@@ -161,7 +163,7 @@ function spawnEnemies() {
 function animate() {
   animationId = requestAnimationFrame(animate);
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   player.draw();
@@ -289,7 +291,7 @@ restartBtn.addEventListener("click", () => {
   gsap.to(".game-over-box", {
     opacity: 0,
     scale: 0.9,
-    duration: 0.5,
+    duration: 0.2,
     ease: "expo.in",
     onComplete: () => {
       restartModal.style.display = "none";
