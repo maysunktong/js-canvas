@@ -2,8 +2,9 @@ const canvas = document.querySelector("canvas");
 const scoreEl = document.querySelector("#score-el");
 const modal = document.querySelector(".game-over-box");
 const modalScore = document.querySelector("#modal-score");
-const buttonEl = document.querySelector(".restart-btn");
-
+const restartBtn = document.querySelector(".restart-btn");
+const startBtn = document.querySelector(".start-btn");
+const startModal = document.querySelector(".start-box");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -270,12 +271,16 @@ addEventListener("click", (event) => {
   );
 });
 
-buttonEl.addEventListener("click", () => {
+restartBtn.addEventListener("click", () => {
   init();
   animate();
   spawnEnemies();
   modal.style.display = "none";
 });
 
-animate();
-spawnEnemies();
+startBtn.addEventListener("click", () => {
+  init();
+  animate();
+  spawnEnemies();
+  startModal.style.display = "none";
+});
