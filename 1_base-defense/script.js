@@ -1,6 +1,6 @@
 const canvas = document.querySelector("canvas");
 const scoreEl = document.querySelector("#score-el");
-const modal = document.querySelector(".game-over-box");
+const restartModal = document.querySelector(".game-over-box");
 const modalScore = document.querySelector("#modal-score");
 const restartBtn = document.querySelector(".restart-btn");
 const startBtn = document.querySelector(".start-btn");
@@ -121,6 +121,7 @@ function init() {
   particles = [];
   animationId;
   score = 0;
+  scoreEl.innerHTML = 0;
 }
 
 function spawnEnemies() {
@@ -201,7 +202,17 @@ function animate() {
       // stop game when enemy touches player
       cancelAnimationFrame(animationId);
       clearInterval(intervalId);
-      modal.style.display = "block";
+
+      restartModal.style.display = "block";
+      gsap.fromTo(
+        ".game-over-box",
+        { scale: 0.8, opacity: 0 },
+        {
+          scale: 1,
+          opacity: 1,
+          ease: "expo",
+        }
+      );
       modalScore.innerHTML = score;
     }
 
@@ -275,12 +286,28 @@ restartBtn.addEventListener("click", () => {
   init();
   animate();
   spawnEnemies();
-  modal.style.display = "none";
+  gsap.to(".game-over-box", {
+    opacity: 0,
+    scale: 0.9,
+    duration: 0.5,
+    ease: "expo.in",
+    onComplete: () => {
+      restartModal.style.display = "none";
+    },
+  });
 });
 
 startBtn.addEventListener("click", () => {
   init();
   animate();
   spawnEnemies();
-  startModal.style.display = "none";
+  gsap.to(".start-box", {
+    opacity: 0,
+    scale: 0.9,
+    duration: 0.2,
+    ease: "expo.in",
+    onComplete: () => {
+      startModal.style.display = "none";
+    },
+  });
 });
