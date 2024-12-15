@@ -68,6 +68,9 @@ const keys = {
   },
 };
 
+// how far have platform scrolled
+let scrollOffset = 0;
+
 // loop over animate()
 const animate = () => {
   requestAnimationFrame(animate);
@@ -85,17 +88,20 @@ const animate = () => {
   } else {
     player.velocity.x = 0;
 
-    // when player holds right, platform moves left
+    // platform scrolling
     if (keys.right.pressed) {
+      scrollOffset += 5;
       platforms.forEach((platform) => {
         platform.position.x -= 5;
       });
     } else if (keys.left.pressed) {
+      scrollOffset += 5;
       platforms.forEach((platform) => {
         platform.position.x += 5;
       });
-    } else {
     }
+    // offset gives value when platfroms move
+    console.log("offset", scrollOffset);
   }
 
   // platform collision detection
@@ -110,6 +116,9 @@ const animate = () => {
       player.velocity.y = 0;
     }
   });
+  if (scrollOffset > 1000){
+    console.log('You win')
+  }
 };
 
 animate();
