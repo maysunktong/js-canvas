@@ -39,8 +39,7 @@ class Player {
 
 // importing road img
 const image = new Image();
-image.src = "./assets/game_tiles/Tile_02.png";
-
+image.src = "./assets/platform.png";
 class Platform {
   constructor({ x, y, image }) {
     this.position = {
@@ -59,8 +58,10 @@ class Platform {
 
 const player = new Player();
 const platforms = [
-  new Platform({ x: 100, y: 200, image }),
-  new Platform({ x: 140, y: 200, image }),
+  new Platform({ x: 0, y: 500, image }),
+  new Platform({ x: image.width, y: 500, image }),
+  new Platform({ x: image.width*2, y: 500, image }),
+  new Platform({ x: image.width*3, y: 500, image })
 ];
 
 const keys = {
