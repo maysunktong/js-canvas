@@ -6,6 +6,22 @@ canvas.height = 576;
 
 const gravity = 0.5;
 
+const platform = "./assets/platform.png";
+const trees = "./assets/trees.png";
+const background = "./assets/bg.png";
+const rocks = "./assets/rocks.png";
+
+function createImage(imageSrc) {
+  const image = new Image();
+  image.src = imageSrc;
+  return image;
+}
+
+const platformImage = createImage(platform);
+const treesImage = createImage(trees);
+const rocksImage = createImage(rocks);
+const backgroundImage = createImage(background);
+
 class Player {
   constructor() {
     this.position = {
@@ -37,10 +53,23 @@ class Player {
   }
 }
 
-// importing road img
-const image = new Image();
-image.src = "./assets/platform.png";
 class Platform {
+  constructor({ x, y, image }) {
+    this.position = {
+      x,
+      y,
+    };
+    this.image = image;
+    this.width = image.width;
+    this.height = image.height;
+  }
+
+  draw() {
+    ctx.drawImage(this.image, this.position.x, this.position.y);
+  }
+}
+
+class GenericObject {
   constructor({ x, y, image }) {
     this.position = {
       x,
@@ -58,10 +87,17 @@ class Platform {
 
 const player = new Player();
 const platforms = [
-  new Platform({ x: 0, y: 500, image }),
-  new Platform({ x: image.width, y: 500, image }),
-  new Platform({ x: image.width*2, y: 500, image }),
-  new Platform({ x: image.width*3, y: 500, image })
+  new Platform({ x: 0, y: 500, image: platformImage }),
+  new Platform({ x: platformImage.width, y: 500, image: platformImage }),
+];
+const genericObjects = [
+  new GenericObject({ x: 0, y: 0, image: backgroundImage }),
+  new GenericObject({ x: 0, y: 440, image: treesImage }),
+  new GenericObject({ x: 200, y: 440, image: treesImage }),
+  new GenericObject({ x: 600, y: 440, image: treesImage }),
+  new GenericObject({ x: 100, y: 450, image: rocksImage }),
+  new GenericObject({ x: 800, y: 450, image: rocksImage }),
+  new GenericObject({ x: 500, y: 450, image: rocksImage }),
 ];
 
 const keys = {
@@ -81,6 +117,10 @@ const animate = () => {
   requestAnimationFrame(animate);
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  genericObjects.forEach((genericObject) => {
+    genericObject.draw();
+  });
   // render multiple platforms
   platforms.forEach((platform) => {
     platform.draw();
@@ -102,10 +142,16 @@ const animate = () => {
       platforms.forEach((platform) => {
         platform.position.x -= 5;
       });
+      genericObjects.forEach((genericObject) => {
+        genericObject.position.x -= 2;
+      });
     } else if (keys.left.pressed) {
       scrollOffset += 5;
       platforms.forEach((platform) => {
         platform.position.x += 5;
+      });
+      genericObjects.forEach((genericObject) => {
+        genericObject.position.x += 2;
       });
     }
   }
