@@ -1,10 +1,11 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+canvas.width = 1024;
+canvas.height = 576;
 
 const gravity = 0.5;
+
 class Player {
   constructor() {
     this.position = {
@@ -36,27 +37,30 @@ class Player {
   }
 }
 
+// importing road img
+const image = new Image();
+image.src = "./assets/Tiles/tile23.png";
+
 class Platform {
-  constructor({ x, y }) {
+  constructor({ x, y, image }) {
     this.position = {
       x,
       y,
     };
-
-    this.width = 200;
-    this.height = 20;
+    this.image = image;
+    this.width = image.width;
+    this.height = image.height;
   }
 
   draw() {
-    ctx.fillStyle = "green";
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+    ctx.drawImage(this.image, this.position.x, this.position.y);
   }
 }
 
 const player = new Player();
 const platforms = [
-  new Platform({ x: 200, y: 100 }),
-  new Platform({ x: 500, y: 200 }),
+  new Platform({ x: 200, y: 100, image }),
+  new Platform({ x: 230, y: 100, image }),
 ];
 
 const keys = {
@@ -74,11 +78,14 @@ let scrollOffset = 0;
 // loop over animate()
 const animate = () => {
   requestAnimationFrame(animate);
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  player.update();
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // render multiple platforms
   platforms.forEach((platform) => {
     platform.draw();
   });
+  // player has to be generated after platforms
+  player.update();
 
   // key bindings management, limit player's distance
   if (keys.right.pressed && player.position.x < 400) {
@@ -100,8 +107,6 @@ const animate = () => {
         platform.position.x += 5;
       });
     }
-    // offset gives value when platfroms move
-    console.log("offset", scrollOffset);
   }
 
   // platform collision detection
@@ -116,8 +121,8 @@ const animate = () => {
       player.velocity.y = 0;
     }
   });
-  if (scrollOffset > 1000){
-    console.log('You win')
+  if (scrollOffset > 1000) {
+    console.log("You win");
   }
 };
 
