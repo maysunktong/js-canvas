@@ -113,15 +113,6 @@ const init = () => {
     new GenericObject({ x: 600, y: 440, image: treesImage }),
   ];
 
-  keys = {
-    right: {
-      pressed: false,
-    },
-    left: {
-      pressed: false,
-    },
-  };
-
   // how far have platform scrolled
   scrollOffset = 0;
 };
