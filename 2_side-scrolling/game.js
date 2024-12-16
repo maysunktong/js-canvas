@@ -49,7 +49,6 @@ class Player {
 
     if (this.position.y + this.height + this.velocity.y <= canvas.height)
       this.velocity.y += gravity;
-    else this.velocity.y = 0;
   }
 }
 
@@ -85,22 +84,11 @@ class GenericObject {
   }
 }
 
-const player = new Player();
-const platforms = [
-  new Platform({ x: 0, y: 500, image: platformImage }),
-  new Platform({ x: platformImage.width, y: 500, image: platformImage }),
-];
-const genericObjects = [
-  new GenericObject({ x: 0, y: 0, image: backgroundImage }),
-  new GenericObject({ x: 0, y: 440, image: treesImage }),
-  new GenericObject({ x: 200, y: 440, image: treesImage }),
-  new GenericObject({ x: 600, y: 440, image: treesImage }),
-  new GenericObject({ x: 100, y: 450, image: rocksImage }),
-  new GenericObject({ x: 800, y: 450, image: rocksImage }),
-  new GenericObject({ x: 500, y: 450, image: rocksImage }),
-];
-
-const keys = {
+/* declare variables for init() */
+let player = new Player();
+let platforms = [];
+let genericObjects = [];
+let keys = {
   right: {
     pressed: false,
   },
@@ -108,9 +96,34 @@ const keys = {
     pressed: false,
   },
 };
-
-// how far have platform scrolled
 let scrollOffset = 0;
+
+// initializing the game: restart
+const init = () => {
+  player = new Player();
+  platforms = [
+    new Platform({ x: 0, y: 500, image: platformImage }),
+    new Platform({ x: 900, y: 500, image: platformImage }),
+  ];
+  genericObjects = [
+    new GenericObject({ x: 0, y: 0, image: backgroundImage }),
+    new GenericObject({ x: 0, y: 440, image: treesImage }),
+    new GenericObject({ x: 200, y: 440, image: treesImage }),
+    new GenericObject({ x: 600, y: 440, image: treesImage }),
+  ];
+
+  keys = {
+    right: {
+      pressed: false,
+    },
+    left: {
+      pressed: false,
+    },
+  };
+
+  // how far have platform scrolled
+  scrollOffset = 0;
+};
 
 // loop over animate()
 const animate = () => {
@@ -143,7 +156,7 @@ const animate = () => {
         platform.position.x -= 5;
       });
       genericObjects.forEach((genericObject) => {
-        genericObject.position.x -= 2;
+        genericObject.position.x -= 3;
       });
     } else if (keys.left.pressed) {
       scrollOffset += 5;
@@ -151,7 +164,7 @@ const animate = () => {
         platform.position.x += 5;
       });
       genericObjects.forEach((genericObject) => {
-        genericObject.position.x += 2;
+        genericObject.position.x += 3;
       });
     }
   }
@@ -168,8 +181,15 @@ const animate = () => {
       player.velocity.y = 0;
     }
   });
+
+  // WIN condition
   if (scrollOffset > 1000) {
     console.log("You win");
+  }
+
+  // LOSE condition: death pits
+  if (player.position.y > canvas.width) {
+    init();
   }
 };
 
