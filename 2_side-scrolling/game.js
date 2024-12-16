@@ -104,10 +104,20 @@ const init = () => {
   player = new Player();
   platforms = [
     new Platform({ x: 0, y: 500, image: platformImage }),
-    new Platform({ x: 900, y: 500, image: platformImage }),
+    new Platform({ x: platformImage.width, y: 500, image: platformImage }),
+    new Platform({
+      x: platformImage.width * 2 + 100,
+      y: 500,
+      image: platformImage,
+    }),
   ];
   genericObjects = [
     new GenericObject({ x: 0, y: 0, image: backgroundImage }),
+    new GenericObject({
+      x: backgroundImage.width,
+      y: 0,
+      image: backgroundImage,
+    }),
     new GenericObject({ x: 0, y: 440, image: treesImage }),
     new GenericObject({ x: 200, y: 440, image: treesImage }),
     new GenericObject({ x: 600, y: 440, image: treesImage }),
@@ -185,13 +195,14 @@ const animate = () => {
   }
 };
 
+init();
 animate();
 
 addEventListener("keydown", ({ keyCode }) => {
   switch (keyCode) {
     case 87:
       console.log("up");
-      player.velocity.y -= 20;
+      player.velocity.y -= 10;
       break;
     case 83:
       console.log("down");
