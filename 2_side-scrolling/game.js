@@ -71,6 +71,7 @@ class Player {
       },
     };
     this.currentSprite = this.sprites.idle.right;
+    this.jumpCount = 0;
   }
 
   draw() {
@@ -96,8 +97,12 @@ class Player {
     this.position.y += this.velocity.y;
     this.position.x += this.velocity.x;
 
-    if (this.position.y + this.height + this.velocity.y <= canvas.height)
+    if (this.position.y + this.height + this.velocity.y <= canvas.height) {
       this.velocity.y += gravity;
+    } else {
+      this.velocity.y = 0; // Reset velocity when on the ground
+      this.jumpCount = 0; // Reset jump count when player touches the ground
+    }
   }
 }
 
@@ -249,6 +254,7 @@ const animate = () => {
       player.position.x <= platform.position.x + platform.width
     ) {
       player.velocity.y = 0;
+      player.jumpCount = 0;
     }
   });
 
@@ -297,8 +303,12 @@ animate();
 addEventListener("keydown", ({ keyCode }) => {
   switch (keyCode) {
     case 87:
-      console.log("up");
-      player.velocity.y -= 13;
+      if (player.jumpCount < 2) {
+        // Check if jump count is less than 2
+        player.velocity.y = -13; // Perform jump
+        player.jumpCount++; // Increment the jump count
+        console.log(`Jump count: ${player.jumpCount}`); // Debug log
+      }
       break;
     case 83:
       console.log("down");
