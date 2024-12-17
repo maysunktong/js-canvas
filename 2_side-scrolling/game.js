@@ -26,7 +26,16 @@ function createImage(imageSrc) {
   return image;
 }
 
-const platformImage = createImage(platform);
+function createImageAsync(imageSrc) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => {
+      resolve(image);
+    };
+    image.src = imageSrc;
+  });
+}
+
 const treesImage = createImage(trees);
 const rocksImage = createImage(rocks);
 const backgroundImage = createImage(background);
@@ -167,7 +176,10 @@ let keys = {
 let scrollOffset = 0;
 
 // initializing the game: restart
-const init = () => {
+async function init() {
+  platformImage = await createImageAsync(platform);
+  console.log(platformImage.width);
+
   player = new Player();
 
   for (let i = 0; i < 10; i++) {
@@ -193,7 +205,7 @@ const init = () => {
 
   // Reset scroll offset
   scrollOffset = 0;
-};
+}
 
 // loop over animate()
 const animate = () => {
@@ -270,7 +282,7 @@ const animate = () => {
   }
 
   // WIN condition
-  if (scrollOffset > platformImage.width * 3 + 200) {
+  if (scrollOffset > createImage(platform).width * 3 + 200) {
     console.log("You win");
   }
 
