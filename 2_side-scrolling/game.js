@@ -4,7 +4,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = 1024;
 canvas.height = 576;
 
-const gravity = 0.5;
+const gravity = 1;
 
 const platform = "./assets/platform.png";
 const trees = "./assets/trees.png";
@@ -52,7 +52,7 @@ class Player {
       x: 0,
       y: 0,
     };
-    this.speed = 5;
+    this.speed = 10;
 
     this.image = spriteIdleRightImage;
     this.frames = 0;
@@ -90,7 +90,7 @@ class Player {
 
   update() {
     this.frames++;
-    if (this.frames > 7.5) {
+    if (this.frames > 7) {
       this.frames = 0;
     }
     this.draw();
@@ -118,6 +118,13 @@ class Platform {
 
   draw() {
     ctx.drawImage(this.image, this.position.x, this.position.y);
+  }
+
+  update() {
+    this.draw();
+    if (this.position.x + this.width <= 0) {
+      this.position.x += this.width * 2;
+    }
   }
 }
 
@@ -162,44 +169,29 @@ let scrollOffset = 0;
 // initializing the game: restart
 const init = () => {
   player = new Player();
-  platforms = [
-    new Platform({
-      x: levelLeftImage.width * 4,
-      y: 375,
-      image: levelLeftImage,
-    }),
-    new Platform({
-      x: levelLeftImage.width * 4 + 120,
-      y: 375,
-      image: levelRightImage,
-    }),
-    new Platform({ x: 0, y: 500, image: platformImage }),
-    new Platform({ x: platformImage.width, y: 500, image: platformImage }),
-    new Platform({
-      x: platformImage.width * 2 + 200,
-      y: 500,
-      image: platformImage,
-    }),
-    new Platform({
-      x: platformImage.width * 3 + 100,
-      y: 500,
-      image: platformImage,
-    }),
-  ];
-  genericObjects = [
-    new GenericObject({ x: 0, y: 0, image: backgroundImage }),
-    new GenericObject({
-      x: backgroundImage.width,
-      y: 0,
-      image: backgroundImage,
-    }),
 
-    new GenericObject({ x: 0, y: 440, image: treesImage }),
-    new GenericObject({ x: 200, y: 440, image: treesImage }),
-    new GenericObject({ x: 600, y: 440, image: treesImage }),
-  ];
+  for (let i = 0; i < 20; i++) {
+    platforms.push(
+      new Platform({
+        x: i * platformImage.width,
+        y: 500,
+        image: platformImage,
+      })
+    );
+  }
 
-  // how far have platform scrolled
+  // Create two background images to achieve the looping effect
+  for (let i = 0; i < 2; i++) {
+    genericObjects.push(
+      new GenericObject({
+        x: i * backgroundImage.width,
+        y: 0,
+        image: backgroundImage,
+      })
+    );
+  }
+
+  // Reset scroll offset
   scrollOffset = 0;
 };
 
@@ -209,48 +201,33 @@ const animate = () => {
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  genericObjects.forEach((genericObject) => {
-    genericObject.draw();
-  });
-  // render multiple platforms
-  platforms.forEach((platform) => {
-    platform.draw();
-  });
-  // player has to be generated after platforms
+  genericObjects.forEach((genericObject) => genericObject.update());
+  platforms.forEach((platform) => platform.update());
   player.update();
 
-  // key bindings management, limit player's distance
+  // Player movement logic
   if (keys.right.pressed && player.position.x < 400) {
     player.velocity.x = player.speed;
-  } else if (
-    (keys.left.pressed && player.position.x > 100) ||
-    (keys.left.pressed && scrollOffset === 0 && player.position.x > 0)
-  ) {
+  } else if (keys.left.pressed && player.position.x > 100) {
     player.velocity.x = -player.speed;
   } else {
     player.velocity.x = 0;
-
-    // platform scrolling
     if (keys.right.pressed) {
       scrollOffset += player.speed;
-      platforms.forEach((platform) => {
-        platform.position.x -= player.speed;
-      });
-      genericObjects.forEach((genericObject) => {
-        genericObject.position.x -= player.speed * 0.7;
-      });
+      platforms.forEach((platform) => (platform.position.x -= player.speed));
+      genericObjects.forEach(
+        (genericObject) => (genericObject.position.x -= player.speed * 0.7)
+      );
     } else if (keys.left.pressed && scrollOffset > 0) {
       scrollOffset -= player.speed;
-      platforms.forEach((platform) => {
-        platform.position.x += player.speed;
-      });
-      genericObjects.forEach((genericObject) => {
-        genericObject.position.x += player.speed * 0.7;
-      });
+      platforms.forEach((platform) => (platform.position.x += player.speed));
+      genericObjects.forEach(
+        (genericObject) => (genericObject.position.x += player.speed * 0.7)
+      );
     }
   }
 
-  // platform collision detection
+  // Platform collision detection
   platforms.forEach((platform) => {
     if (
       player.position.y + player.height <= platform.position.y &&
@@ -264,7 +241,7 @@ const animate = () => {
     }
   });
 
-  // sprite switching
+  // Sprite switching logic
   if (
     keys.right.pressed &&
     lastKey === "right" &&
