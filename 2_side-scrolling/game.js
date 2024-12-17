@@ -170,7 +170,7 @@ let scrollOffset = 0;
 const init = () => {
   player = new Player();
 
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 10; i++) {
     platforms.push(
       new Platform({
         x: i * platformImage.width,
@@ -219,7 +219,7 @@ const animate = () => {
         (genericObject) => (genericObject.position.x -= player.speed * 0.7)
       );
     } else if (keys.left.pressed && scrollOffset > 0) {
-      scrollOffset -= player.speed;
+      scrollOffset = 0;
       platforms.forEach((platform) => (platform.position.x += player.speed));
       genericObjects.forEach(
         (genericObject) => (genericObject.position.x += player.speed * 0.7)
