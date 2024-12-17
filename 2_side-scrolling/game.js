@@ -100,8 +100,7 @@ class Player {
     if (this.position.y + this.height + this.velocity.y <= canvas.height) {
       this.velocity.y += gravity;
     } else {
-      this.velocity.y = 0; // Reset velocity when on the ground
-      this.jumpCount = 0; // Reset jump count when player touches the ground
+      this.jumpCount = 0;
     }
   }
 }
