@@ -135,6 +135,13 @@ class GenericObject {
   draw() {
     ctx.drawImage(this.image, this.position.x, this.position.y);
   }
+
+  update() {
+    this.draw();
+    if (this.position.x + this.width <= 0) {
+      this.position.x += this.width * 2;
+    }
+  }
 }
 
 /* declare variables for init() */
@@ -169,12 +176,12 @@ const init = () => {
     new Platform({ x: 0, y: 500, image: platformImage }),
     new Platform({ x: platformImage.width, y: 500, image: platformImage }),
     new Platform({
-      x: platformImage.width * 2 + player.width + 100,
+      x: platformImage.width * 2 + 200,
       y: 500,
       image: platformImage,
     }),
     new Platform({
-      x: platformImage.width * 3 + player.width + 100,
+      x: platformImage.width * 3 + 100,
       y: 500,
       image: platformImage,
     }),
@@ -291,7 +298,7 @@ const animate = () => {
   }
 
   // LOSE condition: death pits
-  if (player.position.y > canvas.width) {
+  if (player.position.y > canvas.height) {
     init();
   }
 };
