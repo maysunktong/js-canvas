@@ -13,6 +13,13 @@ const rocks = "./assets/rocks.png";
 const levelLeft = "./assets/platformers/Ground_04.png";
 const levelRight = "./assets/platformers/Ground_08.png";
 
+const spriteIdleLeft = "./assets/swordman/Idle_left.png";
+const spriteIdleRight = "./assets/swordman/Idle_right.png";
+const spriteRunLeft = "./assets/swordman/Run_left.png";
+const spriteRunRight = "./assets/swordman/Run_right.png";
+const spriteJumpLeft = "./assets/swordman/Jump_left.png";
+const spriteJumpRight = "./assets/swordman/Jump_right.png";
+
 function createImage(imageSrc) {
   const image = new Image();
   image.src = imageSrc;
@@ -25,6 +32,12 @@ const rocksImage = createImage(rocks);
 const backgroundImage = createImage(background);
 const levelLeftImage = createImage(levelLeft);
 const levelRightImage = createImage(levelRight);
+const spriteIdleLeftImage = createImage(spriteIdleLeft);
+const spriteIdleRightImage = createImage(spriteIdleRight);
+const spriteRunLeftImage = createImage(spriteRunLeft);
+const spriteRunRightImage = createImage(spriteRunRight);
+const spriteJumpLeftImage = createImage(spriteJumpLeft);
+const spriteJumpRightImage = createImage(spriteJumpRight);
 
 class Player {
   constructor() {
@@ -32,22 +45,50 @@ class Player {
       x: 100,
       y: 100,
     };
-    this.width = 30;
-    this.height = 30;
+    this.width = 128;
+    this.height = 128;
     this.velocity = {
       // player will draw downward only, y-axis
       x: 0,
       y: 0,
     };
-    this.speed = 10;
+    this.speed = 5;
+
+    this.image = spriteIdleRightImage;
+    this.frames = 0;
+    this.sprites = {
+      idle: {
+        right: spriteIdleRightImage,
+      },
+      run: {
+        right: spriteRunRightImage,
+      },
+      jump: {
+        right: spriteRunRightImage,
+      },
+    };
+    this.currentSprite = this.sprites.idle.right;
   }
 
   draw() {
-    ctx.fillStyle = "red";
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+    ctx.drawImage(
+      this.currentSprite,
+      128 * this.frames, // croping image from (0,0)
+      0,
+      128,
+      128,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height
+    );
   }
 
   update() {
+    this.frames++;
+    if (this.frames > 7.5) {
+      this.frames = 0;
+    }
     this.draw();
     this.position.y += this.velocity.y;
     this.position.x += this.velocity.x;
@@ -237,6 +278,7 @@ addEventListener("keydown", ({ keyCode }) => {
     case 68:
       console.log("right");
       keys.right.pressed = true;
+      player.currentSprite = player.sprites.run.right;
       break;
   }
 });
@@ -256,6 +298,7 @@ addEventListener("keyup", ({ keyCode }) => {
     case 68:
       console.log("right");
       keys.right.pressed = false;
+      player.currentSprite = player.sprites.idle.right;
       break;
   }
 });
