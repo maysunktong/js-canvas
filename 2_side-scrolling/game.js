@@ -59,12 +59,15 @@ class Player {
     this.sprites = {
       idle: {
         right: spriteIdleRightImage,
+        left: spriteIdleLeftImage,
       },
       run: {
         right: spriteRunRightImage,
+        left: spriteRunLeftImage,
       },
       jump: {
-        right: spriteRunRightImage,
+        right: spriteJumpRightImage,
+        left: spriteJumpLeftImage,
       },
     };
     this.currentSprite = this.sprites.idle.right;
@@ -134,6 +137,7 @@ class GenericObject {
 let player = new Player();
 let platforms = [];
 let genericObjects = [];
+let lastKey;
 let keys = {
   right: {
     pressed: false,
@@ -248,6 +252,34 @@ const animate = () => {
     }
   });
 
+  // sprite switching
+  if (
+    keys.right.pressed &&
+    lastKey === "right" &&
+    player.currentSprite !== player.sprites.run.right
+  ) {
+    player.frames = 1;
+    player.currentSprite = player.sprites.run.right;
+  } else if (
+    keys.left.pressed &&
+    lastKey === "left" &&
+    player.currentSprite !== player.sprites.run.left
+  ) {
+    player.currentSprite = player.sprites.run.left;
+  } else if (
+    !keys.left.pressed &&
+    lastKey === "left" &&
+    player.currentSprite !== player.sprites.idle.left
+  ) {
+    player.currentSprite = player.sprites.idle.left;
+  } else if (
+    !keys.right.pressed &&
+    lastKey === "right" &&
+    player.currentSprite !== player.sprites.idle.right
+  ) {
+    player.currentSprite = player.sprites.idle.right;
+  }
+
   // WIN condition
   if (scrollOffset > platformImage.width * 3 + 200) {
     console.log("You win");
@@ -266,7 +298,7 @@ addEventListener("keydown", ({ keyCode }) => {
   switch (keyCode) {
     case 87:
       console.log("up");
-      player.velocity.y -= 15;
+      player.velocity.y -= 13;
       break;
     case 83:
       console.log("down");
@@ -274,11 +306,12 @@ addEventListener("keydown", ({ keyCode }) => {
     case 65:
       console.log("left");
       keys.left.pressed = true;
+      lastKey = "left";
       break;
     case 68:
       console.log("right");
       keys.right.pressed = true;
-      player.currentSprite = player.sprites.run.right;
+      lastKey = "right";
       break;
   }
 });
@@ -298,7 +331,6 @@ addEventListener("keyup", ({ keyCode }) => {
     case 68:
       console.log("right");
       keys.right.pressed = false;
-      player.currentSprite = player.sprites.idle.right;
       break;
   }
 });
