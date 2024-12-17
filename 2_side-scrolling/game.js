@@ -170,12 +170,12 @@ const init = () => {
     new Platform({ x: 0, y: 500, image: platformImage }),
     new Platform({ x: platformImage.width, y: 500, image: platformImage }),
     new Platform({
-      x: platformImage.width * 2 + 100,
+      x: platformImage.width * 2 + player.width + 100,
       y: 500,
       image: platformImage,
     }),
     new Platform({
-      x: platformImage.width * 3 + 200,
+      x: platformImage.width * 3 + player.width + 100,
       y: 500,
       image: platformImage,
     }),
