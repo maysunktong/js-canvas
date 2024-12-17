@@ -36,17 +36,18 @@ function createImageAsync(imageSrc) {
   });
 }
 
-const treesImage = createImage(trees);
-const rocksImage = createImage(rocks);
-const backgroundImage = createImage(background);
-const levelLeftImage = createImage(levelLeft);
-const levelRightImage = createImage(levelRight);
-const spriteIdleLeftImage = createImage(spriteIdleLeft);
-const spriteIdleRightImage = createImage(spriteIdleRight);
-const spriteRunLeftImage = createImage(spriteRunLeft);
-const spriteRunRightImage = createImage(spriteRunRight);
-const spriteJumpLeftImage = createImage(spriteJumpLeft);
-const spriteJumpRightImage = createImage(spriteJumpRight);
+let platformImage;
+let treesImage = createImage(trees);
+let rocksImage = createImage(rocks);
+let backgroundImage;
+let levelLeftImage = createImage(levelLeft);
+let levelRightImage = createImage(levelRight);
+let spriteIdleLeftImage = createImage(spriteIdleLeft);
+let spriteIdleRightImage = createImage(spriteIdleRight);
+let spriteRunLeftImage = createImage(spriteRunLeft);
+let spriteRunRightImage = createImage(spriteRunRight);
+let spriteJumpLeftImage = createImage(spriteJumpLeft);
+let spriteJumpRightImage = createImage(spriteJumpRight);
 
 class Player {
   constructor() {
@@ -61,7 +62,7 @@ class Player {
       x: 0,
       y: 0,
     };
-    this.speed = 10;
+    this.speed = 5;
 
     this.image = spriteIdleRightImage;
     this.frames = 0;
@@ -110,6 +111,38 @@ class Player {
       this.velocity.y += gravity;
     } else {
       this.jumpCount = 0;
+    }
+  }
+}
+
+class Enemy {
+  constructor({ position, velocity }) {
+    this.position = {
+      x: position.x,
+      y: position.y,
+    };
+
+    this.velocity = {
+      x: velocity.x,
+      y: velocity.y,
+    };
+
+    this.width = 50;
+    this.height = 50;
+  }
+
+  draw() {
+    ctx.fillStyle = "red";
+    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+  }
+
+  update() {
+    this.draw();
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+
+    if (this.position.y + this.height + this.velocity.y <= canvas.height) {
+      this.velocity.y += gravity;
     }
   }
 }
@@ -164,6 +197,8 @@ class GenericObject {
 let player = new Player();
 let platforms = [];
 let genericObjects = [];
+let enemies = [];
+
 let lastKey;
 let keys = {
   right: {
@@ -175,12 +210,36 @@ let keys = {
 };
 let scrollOffset = 0;
 
+function isOnTop({ object, platform }) {
+  return (
+    object.position.y + object.height <= platform.position.y &&
+    object.position.y + object.height + object.velocity.y >=
+      platform.position.y &&
+    object.position.x + object.width >= platform.position.x &&
+    object.position.x <= platform.position.x + platform.width
+  );
+}
+
+// check if object has something on top of it
+function collisionTop({ object1, object2 }) {
+  return (
+    object1.position.y + object1.height <= object2.position.y &&
+    object1.position.y + object1.height + object1.velocity.y >=
+      object2.position.y &&
+    object1.position.x + object1.width >= object2.position.x &&
+    object1.position.x <= object2.position.x + object2.width
+  );
+}
+
 // initializing the game: restart
 async function init() {
   platformImage = await createImageAsync(platform);
-  console.log(platformImage.width);
 
   player = new Player();
+
+  enemies = [
+    new Enemy({ position: { x: 400, y: 100 }, velocity: { x: -0.3, y: 0 } }),
+  ];
 
   for (let i = 0; i < 10; i++) {
     platforms.push(
@@ -192,6 +251,7 @@ async function init() {
     );
   }
 
+  backgroundImage = await createImageAsync(background);
   // Create two background images to achieve the looping effect
   for (let i = 0; i < 2; i++) {
     genericObjects.push(
@@ -208,13 +268,30 @@ async function init() {
 }
 
 // loop over animate()
-const animate = () => {
+function animate() {
   requestAnimationFrame(animate);
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   genericObjects.forEach((genericObject) => genericObject.update());
   platforms.forEach((platform) => platform.update());
+
+  // player is on top of enemy
+  enemies.forEach((enemy, index) => {
+    enemy.update();
+    if (collisionTop({ object1: player, object2: enemy })) {
+      player.velocity.y -= 40; // player bounces up when jumping on enemy
+      setTimeout(() => {
+        enemies.splice(index, 1), 0; // make sure dont get any flash of other contents
+      });
+    } else if (
+      player.position.x + player.width >= enemy.position.x &&
+      player.position.y + player.height >= enemy.position.y &&
+      player.position.x <= enemy.position.x + enemy.width
+    ) {
+      init();
+    }
+  });
   player.update();
 
   // Player movement logic
@@ -224,33 +301,46 @@ const animate = () => {
     player.velocity.x = -player.speed;
   } else {
     player.velocity.x = 0;
+    // scrolling code
     if (keys.right.pressed) {
       scrollOffset += player.speed;
       platforms.forEach((platform) => (platform.position.x -= player.speed));
+
       genericObjects.forEach(
         (genericObject) => (genericObject.position.x -= player.speed * 0.7)
       );
+
+      // enemy moves pass player
+      enemies.forEach((enemy) => (enemy.position.x -= player.speed));
     } else if (keys.left.pressed && scrollOffset > 0) {
       scrollOffset = 0;
+
       platforms.forEach((platform) => (platform.position.x += player.speed));
+
       genericObjects.forEach(
         (genericObject) => (genericObject.position.x += player.speed * 0.7)
       );
+
+      enemies.forEach((enemy) => (enemy.position.x += player.speed));
     }
   }
 
   // Platform collision detection
   platforms.forEach((platform) => {
-    if (
-      player.position.y + player.height <= platform.position.y &&
-      player.position.y + player.height + player.velocity.y >=
-        platform.position.y &&
-      player.position.x + player.width >= platform.position.x &&
-      player.position.x <= platform.position.x + platform.width
-    ) {
+    if (isOnTop({ object: player, platform })) {
       player.velocity.y = 0;
       player.jumpCount = 0;
     }
+
+    enemies.forEach((enemy) => {
+      if (
+        isOnTop({
+          object: enemy,
+          platform,
+        })
+      )
+        enemy.velocity.y = 0;
+    });
   });
 
   // Sprite switching logic
@@ -282,7 +372,7 @@ const animate = () => {
   }
 
   // WIN condition
-  if (scrollOffset > createImage(platform).width * 3 + 200) {
+  if (platformImage && scrollOffset > platformImage.width * 3 + 200) {
     console.log("You win");
   }
 
@@ -290,7 +380,7 @@ const animate = () => {
   if (player.position.y > canvas.height) {
     init();
   }
-};
+}
 
 init();
 animate();
@@ -300,12 +390,12 @@ addEventListener("keydown", ({ keyCode }) => {
     case 87:
       if (player.jumpCount < 2) {
         // Check if jump count is less than 2
-        player.velocity.y = -13; // Perform jump
+        player.velocity.y = -20 // Perform jump
         player.jumpCount++; // Increment the jump count
         console.log(`Jump count: ${player.jumpCount}`); // Debug log
       }
       break;
-    case 83:
+    case 83:d
       console.log("down");
       break;
     case 65:
