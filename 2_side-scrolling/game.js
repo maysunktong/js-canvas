@@ -10,6 +10,8 @@ const platform = "./assets/platform.png";
 const trees = "./assets/trees.png";
 const background = "./assets/bg.png";
 const rocks = "./assets/rocks.png";
+const levelLeft = "./assets/platformers/Ground_04.png";
+const levelRight = "./assets/platformers/Ground_08.png";
 
 function createImage(imageSrc) {
   const image = new Image();
@@ -21,6 +23,8 @@ const platformImage = createImage(platform);
 const treesImage = createImage(trees);
 const rocksImage = createImage(rocks);
 const backgroundImage = createImage(background);
+const levelLeftImage = createImage(levelLeft);
+const levelRightImage = createImage(levelRight);
 
 class Player {
   constructor() {
@@ -103,10 +107,25 @@ let scrollOffset = 0;
 const init = () => {
   player = new Player();
   platforms = [
+    new Platform({
+      x: levelLeftImage.width * 4,
+      y: 375,
+      image: levelLeftImage,
+    }),
+    new Platform({
+      x: levelLeftImage.width * 4 + 120,
+      y: 375,
+      image: levelRightImage,
+    }),
     new Platform({ x: 0, y: 500, image: platformImage }),
     new Platform({ x: platformImage.width, y: 500, image: platformImage }),
     new Platform({
       x: platformImage.width * 2 + 100,
+      y: 500,
+      image: platformImage,
+    }),
+    new Platform({
+      x: platformImage.width * 3 + 200,
       y: 500,
       image: platformImage,
     }),
@@ -118,6 +137,7 @@ const init = () => {
       y: 0,
       image: backgroundImage,
     }),
+
     new GenericObject({ x: 0, y: 440, image: treesImage }),
     new GenericObject({ x: 200, y: 440, image: treesImage }),
     new GenericObject({ x: 600, y: 440, image: treesImage }),
@@ -146,7 +166,10 @@ const animate = () => {
   // key bindings management, limit player's distance
   if (keys.right.pressed && player.position.x < 400) {
     player.velocity.x = player.speed;
-  } else if (keys.left.pressed && player.position.x > 100) {
+  } else if (
+    (keys.left.pressed && player.position.x > 100) ||
+    (keys.left.pressed && scrollOffset === 0 && player.position.x > 0)
+  ) {
     player.velocity.x = -player.speed;
   } else {
     player.velocity.x = 0;
@@ -160,8 +183,8 @@ const animate = () => {
       genericObjects.forEach((genericObject) => {
         genericObject.position.x -= player.speed * 0.7;
       });
-    } else if (keys.left.pressed) {
-      scrollOffset += player.speed;
+    } else if (keys.left.pressed && scrollOffset > 0) {
+      scrollOffset -= player.speed;
       platforms.forEach((platform) => {
         platform.position.x += player.speed;
       });
@@ -185,7 +208,7 @@ const animate = () => {
   });
 
   // WIN condition
-  if (scrollOffset > 1000) {
+  if (scrollOffset > platformImage.width * 3 + 200) {
     console.log("You win");
   }
 
@@ -202,7 +225,7 @@ addEventListener("keydown", ({ keyCode }) => {
   switch (keyCode) {
     case 87:
       console.log("up");
-      player.velocity.y -= 10;
+      player.velocity.y -= 15;
       break;
     case 83:
       console.log("down");
@@ -222,7 +245,6 @@ addEventListener("keyup", ({ keyCode }) => {
   switch (keyCode) {
     case 87:
       console.log("up");
-      player.velocity.y = 0;
       break;
     case 83:
       console.log("down");
