@@ -389,10 +389,8 @@ addEventListener("keydown", ({ keyCode }) => {
   switch (keyCode) {
     case 87:
       if (player.jumpCount < 1) {
-        // Check if jump count is less than 2
         player.velocity.y = -20; // Perform jump
-        player.jumpCount++; // Increment the jump count
-        console.log(`Jump count: ${player.jumpCount}`); // Debug log
+        player.jumpCount++; 
       }
       break;
     case 83:
