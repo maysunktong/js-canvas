@@ -22,8 +22,8 @@ const spriteJumpRight = "./assets/swordman/Jump_right.png";
 
 const wolfWalkLeft = "./assets/werewolf/walk_left.png";
 const wolfRunLeft = "./assets/werewolf/Run_left.png";
-const coins = "./assets/collectibles/1.png";
-const runes = "./assets/collectibles/2.png";
+const stars = "./assets/collectibles/1.png";
+const coins = "./assets/collectibles/2.png";
 
 function createImage(imageSrc) {
   const image = new Image();
@@ -57,8 +57,8 @@ let spriteJumpRightImage = createImage(spriteJumpRight);
 let wolfWalkLeftImage = createImage(wolfWalkLeft);
 let wolfRunLeftImage = createImage(wolfRunLeft);
 
+let collectibleStars = createImage(stars);
 let collectibleCoins = createImage(coins);
-let collectibleRunes = createImage(runes);
 
 class Player {
   constructor() {
@@ -189,16 +189,23 @@ class Enemy {
 }
 
 class Collectible {
-  constructor({ position, image, value = 1, type = "coin" }) {
+  constructor({ position, velocity, image, value = 1, type = "coin" }) {
     this.position = {
       x: position.x,
       y: position.y,
     };
+
+    this.velocity = {
+      x: velocity.x,
+      y: velocity.y,
+    };
+
     this.width = 32; // Default size, can be changed later
     this.height = 32;
+
     this.image = image;
     this.type = type; // Can be 'coin', 'health', 'power-up', etc.
-    this.value = value; 
+    this.value = value;
 
     this.frames = 0;
     this.frameInterval = 10;
@@ -228,6 +235,8 @@ class Collectible {
       }
     }
     this.draw();
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
   }
 }
 
@@ -325,8 +334,8 @@ async function init() {
   // enemy speed
   enemies = [
     new Enemy({
-      position: { x: 500, y: 100 },
-      velocity: { x: -2, y: 0 },
+      position: { x: 800, y: 100 },
+      velocity: { x: -1, y: 0 },
       image: wolfWalkLeftImage,
     }),
     new Enemy({
@@ -361,10 +370,18 @@ async function init() {
   collectibles = [
     new Collectible({
       position: { x: 300, y: 300 },
+      velocity: { x: 0, y: 0 },
+      image: collectibleStars,
+      value: 10,
+      type: "coin",
+    }),
+    new Collectible({
+      position: { x: 500, y: 300 },
+      velocity: { x: 0, y: 0 },
       image: collectibleCoins,
       value: 10,
       type: "coin",
-    })
+    }),
   ];
 
   // Reset scroll offset
@@ -399,8 +416,20 @@ function animate() {
   });
 
   // collectibles
-  collectibles.forEach((collectible) => {
+  collectibles.forEach((collectible, index) => {
     collectible.update();
+
+    if (
+      player.position.x < collectible.position.x + collectible.width &&
+      player.position.x + player.width > collectible.position.x &&
+      player.position.y < collectible.position.y + collectible.height &&
+      player.position.y + player.height > collectible.position.y
+    ) {
+      // Remove collectible when touched
+      setTimeout(() => {
+        collectibles.splice(index, 1);
+      }, 0);
+    }
   });
 
   player.update();
@@ -415,16 +444,21 @@ function animate() {
     // scrolling code
     if (keys.right.pressed) {
       scrollOffset += player.speed;
+
       platforms.forEach((platform) => (platform.position.x -= player.speed));
 
       genericObjects.forEach(
         (genericObject) => (genericObject.position.x -= player.speed * 0.7)
       );
 
-      // enemy moves pass player
       enemies.forEach((enemy) => (enemy.position.x -= player.speed));
+
+      // 🚀 **New Code to Scroll Collectibles**
+      collectibles.forEach(
+        (collectible) => (collectible.position.x -= player.speed)
+      );
     } else if (keys.left.pressed && scrollOffset > 0) {
-      scrollOffset = 0;
+      scrollOffset -= player.speed;
 
       platforms.forEach((platform) => (platform.position.x += player.speed));
 
@@ -433,6 +467,11 @@ function animate() {
       );
 
       enemies.forEach((enemy) => (enemy.position.x += player.speed));
+
+      // 🚀 **New Code to Scroll Collectibles**
+      collectibles.forEach(
+        (collectible) => (collectible.position.x += player.speed)
+      );
     }
   }
 
@@ -452,6 +491,17 @@ function animate() {
       )
         enemy.velocity.y = 0;
     });
+
+    // not sure if needed ‼️
+    // collectibles.forEach((collectible) => {
+    //   if (
+    //     isOnTop({
+    //       object: collectible,
+    //       platform,
+    //     })
+    //   )
+    //     collectible.velocity.y = 0;
+    // });
   });
 
   // Sprite switching logic
