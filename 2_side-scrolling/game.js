@@ -20,7 +20,7 @@ const spriteRunRight = "./assets/swordman/Run_right.png";
 const spriteJumpLeft = "./assets/swordman/Jump_left.png";
 const spriteJumpRight = "./assets/swordman/Jump_right.png";
 
-const enemyIdleRight = "./assets/Knight/Idle.png";
+const enemyIdleRight = "./assets/Attack_1_left1.png";
 
 function createImage(imageSrc) {
   const image = new Image();
@@ -152,7 +152,7 @@ class Enemy {
 
   update() {
     this.frames++;
-    if (this.frames > 5) {
+    if (this.frames > 9) {
       this.frames = 0;
     }
     this.draw();
@@ -256,7 +256,7 @@ async function init() {
   player = new Player();
 
   enemies = [
-    new Enemy({ position: { x: 400, y: 100 }, velocity: { x: -0.3, y: 0 } }),
+    new Enemy({ position: { x: 500, y: 100 }, velocity: { x: 0, y: 0} }),
   ];
 
   for (let i = 0; i < 10; i++) {
@@ -358,7 +358,7 @@ function animate() {
           platform,
         })
       )
-        enemy.velocity.y = 0;
+        enemy.velocity.y = -5;
     });
   });
 
