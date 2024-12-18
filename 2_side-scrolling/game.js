@@ -20,6 +20,8 @@ const spriteRunRight = "./assets/swordman/Run_right.png";
 const spriteJumpLeft = "./assets/swordman/Jump_left.png";
 const spriteJumpRight = "./assets/swordman/Jump_right.png";
 
+const enemyIdleRight = "./assets/Knight/Idle.png";
+
 function createImage(imageSrc) {
   const image = new Image();
   image.src = imageSrc;
@@ -52,8 +54,8 @@ let spriteJumpRightImage = createImage(spriteJumpRight);
 class Player {
   constructor() {
     this.position = {
-      x: 50,
-      y: 100,
+      x: 0,
+      y: 0,
     };
     this.width = 128;
     this.height = 128;
@@ -127,16 +129,32 @@ class Enemy {
       y: velocity.y,
     };
 
-    this.width = 50;
-    this.height = 50;
+    this.width = 128;
+    this.height = 128;
+
+    this.image = createImage(enemyIdleRight);
+    this.frames = 0;
   }
 
   draw() {
-    ctx.fillStyle = "red";
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+    ctx.drawImage(
+      this.image,
+      128 * this.frames,
+      0,
+      128,
+      128,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height
+    );
   }
 
   update() {
+    this.frames++;
+    if (this.frames > 5) {
+      this.frames = 0;
+    }
     this.draw();
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
@@ -390,7 +408,7 @@ addEventListener("keydown", ({ keyCode }) => {
     case 87:
       if (player.jumpCount < 1) {
         player.velocity.y = -20; // Perform jump
-        player.jumpCount++; 
+        player.jumpCount++;
       }
       break;
     case 83:
