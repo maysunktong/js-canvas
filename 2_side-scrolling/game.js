@@ -22,6 +22,8 @@ const spriteJumpRight = "./assets/swordman/Jump_right.png";
 
 const wolfWalkLeft = "./assets/werewolf/walk_left.png";
 const wolfRunLeft = "./assets/werewolf/Run_left.png";
+const coins = "./assets/collectibles/1.png";
+const runes = "./assets/collectibles/2.png";
 
 function createImage(imageSrc) {
   const image = new Image();
@@ -54,6 +56,9 @@ let spriteJumpRightImage = createImage(spriteJumpRight);
 
 let wolfWalkLeftImage = createImage(wolfWalkLeft);
 let wolfRunLeftImage = createImage(wolfRunLeft);
+
+let collectibleCoins = createImage(coins);
+let collectibleRunes = createImage(runes);
 
 class Player {
   constructor() {
@@ -183,6 +188,49 @@ class Enemy {
   }
 }
 
+class Collectible {
+  constructor({ position, image, value = 1, type = "coin" }) {
+    this.position = {
+      x: position.x,
+      y: position.y,
+    };
+    this.width = 32; // Default size, can be changed later
+    this.height = 32;
+    this.image = image;
+    this.type = type; // Can be 'coin', 'health', 'power-up', etc.
+    this.value = value; 
+
+    this.frames = 0;
+    this.frameInterval = 10;
+    this.frameTimer = 0;
+  }
+
+  draw() {
+    ctx.drawImage(
+      this.image,
+      16 * this.frames,
+      0,
+      16,
+      16,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height
+    );
+  }
+
+  update() {
+    this.frameTimer++;
+    if (this.frameTimer % this.frameInterval === 0) {
+      this.frames++;
+      if (this.frames > this.image.width / this.height - 1) {
+        this.frames = 0;
+      }
+    }
+    this.draw();
+  }
+}
+
 class Platform {
   constructor({ x, y, image }) {
     this.position = {
@@ -233,6 +281,7 @@ class GenericObject {
 let player = new Player();
 let platforms = [];
 let genericObjects = [];
+let collectibles = [];
 let enemies = [];
 
 let lastKey;
@@ -309,6 +358,15 @@ async function init() {
     );
   }
 
+  collectibles = [
+    new Collectible({
+      position: { x: 300, y: 300 },
+      image: collectibleCoins,
+      value: 10,
+      type: "coin",
+    })
+  ];
+
   // Reset scroll offset
   scrollOffset = 0;
 }
@@ -339,6 +397,12 @@ function animate() {
       init();
     }
   });
+
+  // collectibles
+  collectibles.forEach((collectible) => {
+    collectible.update();
+  });
+
   player.update();
 
   // Player movement logic
