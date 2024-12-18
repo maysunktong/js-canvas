@@ -20,7 +20,8 @@ const spriteRunRight = "./assets/swordman/Run_right.png";
 const spriteJumpLeft = "./assets/swordman/Jump_left.png";
 const spriteJumpRight = "./assets/swordman/Jump_right.png";
 
-const enemyIdleRight = "./assets/werewolf/walk_left.png";
+const wolfWalkLeft = "./assets/werewolf/walk_left.png";
+const wolfRunLeft = "./assets/werewolf/Run_left.png";
 
 function createImage(imageSrc) {
   const image = new Image();
@@ -50,6 +51,9 @@ let spriteRunLeftImage = createImage(spriteRunLeft);
 let spriteRunRightImage = createImage(spriteRunRight);
 let spriteJumpLeftImage = createImage(spriteJumpLeft);
 let spriteJumpRightImage = createImage(spriteJumpRight);
+
+let wolfWalkLeftImage = createImage(wolfWalkLeft);
+let wolfRunLeftImage = createImage(wolfRunLeft);
 
 class Player {
   constructor() {
@@ -87,7 +91,7 @@ class Player {
 
     this.frames = 0;
     this.frameInterval = 10;
-    this.frameTimer = 0; 
+    this.frameTimer = 0;
   }
 
   draw() {
@@ -108,7 +112,7 @@ class Player {
     this.frameTimer++;
     if (this.frameTimer % this.frameInterval === 0) {
       this.frames++;
-      if (this.frames > this.image.width / this.height-1) {
+      if (this.frames > this.image.width / this.height - 1) {
         this.frames = 0;
       }
     }
@@ -125,7 +129,7 @@ class Player {
 }
 
 class Enemy {
-  constructor({ position, velocity }) {
+  constructor({ position, velocity, image }) {
     this.position = {
       x: position.x,
       y: position.y,
@@ -139,11 +143,12 @@ class Enemy {
     this.width = 128;
     this.height = 128;
 
-    this.image = createImage(enemyIdleRight);
+    // Use the provided image parameter instead of a hardcoded image
+    this.image = image;
 
     this.frames = 0;
     this.frameInterval = 10;
-    this.frameTimer = 0; 
+    this.frameTimer = 0;
   }
 
   draw() {
@@ -164,7 +169,7 @@ class Enemy {
     this.frameTimer++;
     if (this.frameTimer % this.frameInterval === 0) {
       this.frames++;
-      if (this.frames > this.image.width / this.height-1) {
+      if (this.frames > this.image.width / this.height - 1) {
         this.frames = 0;
       }
     }
@@ -270,7 +275,16 @@ async function init() {
 
   // enemy speed
   enemies = [
-    new Enemy({ position: { x: 500, y: 100 }, velocity: { x: -2, y: 0 } }),
+    new Enemy({
+      position: { x: 500, y: 100 },
+      velocity: { x: -2, y: 0 },
+      image: wolfWalkLeftImage,
+    }),
+    new Enemy({
+      position: { x: 1000, y: 100 },
+      velocity: { x: -1, y: 0 },
+      image: wolfWalkLeftImage,
+    }),
   ];
 
   for (let i = 0; i < 10; i++) {
@@ -319,8 +333,8 @@ function animate() {
     } else if (
       player.position.x + 50 >= enemy.position.x &&
       player.position.x <= enemy.position.x + 50 &&
-      player.position.y + 50 >= enemy.position.y &&
-      player.position.y <= enemy.position.y + 50
+      player.position.y >= enemy.position.y &&
+      player.position.y <= enemy.position.y
     ) {
       init();
     }
