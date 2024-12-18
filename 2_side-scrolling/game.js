@@ -64,7 +64,7 @@ class Player {
       x: 0,
       y: 0,
     };
-    this.speed = 5;
+    this.speed = 10;
 
     this.image = spriteIdleRightImage;
     this.frames = 0;
@@ -303,9 +303,10 @@ function animate() {
         enemies.splice(index, 1), 0; // make sure dont get any flash of other contents
       });
     } else if (
-      player.position.x + player.width >= enemy.position.x &&
-      player.position.y + player.height >= enemy.position.y &&
-      player.position.x <= enemy.position.x + enemy.width
+      player.position.x + 50 >= enemy.position.x &&
+      player.position.x <= enemy.position.x + 50 &&
+      player.position.y + 50 >= enemy.position.y &&
+      player.position.y <= enemy.position.y + 50
     ) {
       init();
     }
@@ -315,7 +316,7 @@ function animate() {
   // Player movement logic
   if (keys.right.pressed && player.position.x < 400) {
     player.velocity.x = player.speed;
-  } else if (keys.left.pressed && player.position.x > 100) {
+  } else if (keys.left.pressed && player.position.x > 0) {
     player.velocity.x = -player.speed;
   } else {
     player.velocity.x = 0;
