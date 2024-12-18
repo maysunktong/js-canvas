@@ -63,8 +63,8 @@ let collectibleCoins = createImage(coins);
 class Player {
   constructor() {
     this.position = {
-      x: 0,
-      y: 0,
+      x: 100,
+      y: 100,
     };
     this.width = 128;
     this.height = 128;
@@ -73,7 +73,7 @@ class Player {
       x: 0,
       y: 0,
     };
-    this.speed = 5;
+    this.speed = 10;
 
     this.image = spriteIdleRightImage;
 
@@ -437,7 +437,10 @@ function animate() {
   // Player movement logic
   if (keys.right.pressed && player.position.x < 400) {
     player.velocity.x = player.speed;
-  } else if (keys.left.pressed && player.position.x > 0) {
+  } else if (
+    (keys.left.pressed && player.position.x > 100) ||
+    (keys.left.pressed && scrollOffset === 0 && player.position.x > 0)
+  ) {
     player.velocity.x = -player.speed;
   } else {
     player.velocity.x = 0;
@@ -491,17 +494,6 @@ function animate() {
       )
         enemy.velocity.y = 0;
     });
-
-    // not sure if needed ‼️
-    // collectibles.forEach((collectible) => {
-    //   if (
-    //     isOnTop({
-    //       object: collectible,
-    //       platform,
-    //     })
-    //   )
-    //     collectible.velocity.y = 0;
-    // });
   });
 
   // Sprite switching logic
@@ -547,6 +539,7 @@ init();
 animate();
 
 addEventListener("keydown", ({ keyCode }) => {
+  console.log(keyCode);
   switch (keyCode) {
     case 87:
       if (player.jumpCount < 1) {
@@ -554,17 +547,11 @@ addEventListener("keydown", ({ keyCode }) => {
         player.jumpCount++;
       }
       break;
-    case 83:
-      d;
-      console.log("down");
-      break;
     case 65:
-      console.log("left");
       keys.left.pressed = true;
       lastKey = "left";
       break;
     case 68:
-      console.log("right");
       keys.right.pressed = true;
       lastKey = "right";
       break;
@@ -574,10 +561,6 @@ addEventListener("keydown", ({ keyCode }) => {
 addEventListener("keyup", ({ keyCode }) => {
   switch (keyCode) {
     case 87:
-      console.log("up");
-      break;
-    case 83:
-      console.log("down");
       break;
     case 65:
       console.log("left");
