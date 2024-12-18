@@ -52,7 +52,7 @@ let spriteJumpRightImage = createImage(spriteJumpRight);
 class Player {
   constructor() {
     this.position = {
-      x: 100,
+      x: 50,
       y: 100,
     };
     this.width = 128;
@@ -388,14 +388,15 @@ animate();
 addEventListener("keydown", ({ keyCode }) => {
   switch (keyCode) {
     case 87:
-      if (player.jumpCount < 2) {
+      if (player.jumpCount < 1) {
         // Check if jump count is less than 2
-        player.velocity.y = -20 // Perform jump
+        player.velocity.y = -20; // Perform jump
         player.jumpCount++; // Increment the jump count
         console.log(`Jump count: ${player.jumpCount}`); // Debug log
       }
       break;
-    case 83:d
+    case 83:
+      d;
       console.log("down");
       break;
     case 65:
