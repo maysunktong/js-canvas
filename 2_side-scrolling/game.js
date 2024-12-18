@@ -20,7 +20,7 @@ const spriteRunRight = "./assets/swordman/Run_right.png";
 const spriteJumpLeft = "./assets/swordman/Jump_left.png";
 const spriteJumpRight = "./assets/swordman/Jump_right.png";
 
-const enemyIdleRight = "./assets/Attack_1_left1.png";
+const enemyIdleRight = "./assets/werewolf/walk_left.png";
 
 function createImage(imageSrc) {
   const image = new Image();
@@ -64,10 +64,10 @@ class Player {
       x: 0,
       y: 0,
     };
-    this.speed = 10;
+    this.speed = 5;
 
     this.image = spriteIdleRightImage;
-    this.frames = 0;
+
     this.sprites = {
       idle: {
         right: spriteIdleRightImage,
@@ -84,6 +84,10 @@ class Player {
     };
     this.currentSprite = this.sprites.idle.right;
     this.jumpCount = 0;
+
+    this.frames = 0;
+    this.frameInterval = 10;
+    this.frameTimer = 0; 
   }
 
   draw() {
@@ -101,9 +105,12 @@ class Player {
   }
 
   update() {
-    this.frames++;
-    if (this.frames > 7) {
-      this.frames = 0;
+    this.frameTimer++;
+    if (this.frameTimer % this.frameInterval === 0) {
+      this.frames++;
+      if (this.frames > this.image.width / this.height-1) {
+        this.frames = 0;
+      }
     }
     this.draw();
     this.position.y += this.velocity.y;
@@ -133,7 +140,10 @@ class Enemy {
     this.height = 128;
 
     this.image = createImage(enemyIdleRight);
+
     this.frames = 0;
+    this.frameInterval = 10;
+    this.frameTimer = 0; 
   }
 
   draw() {
@@ -151,9 +161,12 @@ class Enemy {
   }
 
   update() {
-    this.frames++;
-    if (this.frames > 9) {
-      this.frames = 0;
+    this.frameTimer++;
+    if (this.frameTimer % this.frameInterval === 0) {
+      this.frames++;
+      if (this.frames > this.image.width / this.height-1) {
+        this.frames = 0;
+      }
     }
     this.draw();
     this.position.x += this.velocity.x;
@@ -255,8 +268,9 @@ async function init() {
 
   player = new Player();
 
+  // enemy speed
   enemies = [
-    new Enemy({ position: { x: 500, y: 100 }, velocity: { x: 0, y: 0} }),
+    new Enemy({ position: { x: 500, y: 100 }, velocity: { x: -2, y: 0 } }),
   ];
 
   for (let i = 0; i < 10; i++) {
@@ -298,7 +312,7 @@ function animate() {
   enemies.forEach((enemy, index) => {
     enemy.update();
     if (collisionTop({ object1: player, object2: enemy })) {
-      player.velocity.y -= 40; // player bounces up when jumping on enemy
+      player.velocity.y -= 30; // player bounces up when jumping on enemy
       setTimeout(() => {
         enemies.splice(index, 1), 0; // make sure dont get any flash of other contents
       });
@@ -358,7 +372,7 @@ function animate() {
           platform,
         })
       )
-        enemy.velocity.y = -5;
+        enemy.velocity.y = 0;
     });
   });
 
@@ -408,7 +422,7 @@ addEventListener("keydown", ({ keyCode }) => {
   switch (keyCode) {
     case 87:
       if (player.jumpCount < 1) {
-        player.velocity.y = -20; // Perform jump
+        player.velocity.y = -25; // Perform jump
         player.jumpCount++;
       }
       break;
