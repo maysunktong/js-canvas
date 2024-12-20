@@ -97,6 +97,8 @@ class Player {
     this.frames = 0;
     this.frameInterval = 10;
     this.frameTimer = 0;
+
+    this.score = 0;
   }
 
   draw() {
@@ -111,6 +113,10 @@ class Player {
       this.width,
       this.height
     );
+
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText(`Score: ${this.score}`, canvas.width - 150, 50);
   }
 
   update() {
@@ -205,7 +211,7 @@ class Collectible {
 
     this.image = image;
     this.type = type; // Can be 'coin', 'health', 'power-up', etc.
-    this.value = value;
+    this.value = value; // The value of the collectible
 
     this.frames = 0;
     this.frameInterval = 10;
@@ -292,6 +298,7 @@ let platforms = [];
 let genericObjects = [];
 let collectibles = [];
 let enemies = [];
+let score = 0;
 
 let lastKey;
 let keys = {
@@ -397,23 +404,22 @@ function animate() {
   genericObjects.forEach((genericObject) => genericObject.update());
   platforms.forEach((platform) => platform.update());
 
-  // player is on top of enemy
-  enemies.forEach((enemy, index) => {
-    enemy.update();
-    if (collisionTop({ object1: player, object2: enemy })) {
-      player.velocity.y -= 30; // player bounces up when jumping on enemy
-      setTimeout(() => {
-        enemies.splice(index, 1), 0; // make sure dont get any flash of other contents
-      });
-    } else if (
-      player.position.x + 50 >= enemy.position.x &&
-      player.position.x <= enemy.position.x + 50 &&
-      player.position.y >= enemy.position.y &&
-      player.position.y <= enemy.position.y
-    ) {
-      init();
-    }
-  });
+  // enemies.forEach((enemy, index) => {
+  //   enemy.update();
+  //   if (collisionTop({ object1: player, object2: enemy })) {
+  //     player.velocity.y -= 30; // player bounces up when jumping on enemy
+  //     setTimeout(() => {
+  //       enemies.splice(index, 1), 0; // make sure dont get any flash of other contents
+  //     });
+  //   } else if (
+  //     player.position.x + 50 >= enemy.position.x &&
+  //     player.position.x <= enemy.position.x + 50 &&
+  //     player.position.y >= enemy.position.y &&
+  //     player.position.y <= enemy.position.y
+  //   ) {
+  //     init();
+  //   }
+  // });
 
   // collectibles
   collectibles.forEach((collectible, index) => {
@@ -425,6 +431,9 @@ function animate() {
       player.position.y < collectible.position.y + collectible.height &&
       player.position.y + player.height > collectible.position.y
     ) {
+      // Add the collectible's value to the player's score
+      player.score += collectible.value;
+
       // Remove collectible when touched
       setTimeout(() => {
         collectibles.splice(index, 1);
