@@ -486,8 +486,7 @@ function animate() {
 
       setTimeout(() => {
         explosions.splice(index, 1);
-      }, 500); 
-
+      }, 500);
     } else if (
       player.position.x + 50 >= enemy.position.x &&
       player.position.x <= enemy.position.x + 50 &&
@@ -502,7 +501,9 @@ function animate() {
   explosions.forEach((explosion, index) => {
     explosion.update();
     if (explosion.frames > explosion.image.width / explosion.height - 1) {
-      explosions.splice(index, 1);
+      setTimeout(() => {
+        explosions.splice(index, 1);
+      },0);
     }
   });
 
@@ -537,6 +538,7 @@ function animate() {
     player.velocity.x = -player.speed;
   } else {
     player.velocity.x = 0;
+    
     // scrolling code
     if (keys.right.pressed) {
       scrollOffset += player.speed;
