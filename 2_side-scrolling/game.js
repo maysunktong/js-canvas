@@ -404,22 +404,22 @@ function animate() {
   genericObjects.forEach((genericObject) => genericObject.update());
   platforms.forEach((platform) => platform.update());
 
-  // enemies.forEach((enemy, index) => {
-  //   enemy.update();
-  //   if (collisionTop({ object1: player, object2: enemy })) {
-  //     player.velocity.y -= 30; // player bounces up when jumping on enemy
-  //     setTimeout(() => {
-  //       enemies.splice(index, 1), 0; // make sure dont get any flash of other contents
-  //     });
-  //   } else if (
-  //     player.position.x + 50 >= enemy.position.x &&
-  //     player.position.x <= enemy.position.x + 50 &&
-  //     player.position.y >= enemy.position.y &&
-  //     player.position.y <= enemy.position.y
-  //   ) {
-  //     init();
-  //   }
-  // });
+  enemies.forEach((enemy, index) => {
+    enemy.update();
+    if (collisionTop({ object1: player, object2: enemy })) {
+      player.velocity.y -= 30; // player bounces up when jumping on enemy
+      setTimeout(() => {
+        enemies.splice(index, 1), 0; // make sure dont get any flash of other contents
+      });
+    } else if (
+      player.position.x + 50 >= enemy.position.x &&
+      player.position.x <= enemy.position.x + 50 &&
+      player.position.y >= enemy.position.y &&
+      player.position.y <= enemy.position.y
+    ) {
+      init();
+    }
+  });
 
   // collectibles
   collectibles.forEach((collectible, index) => {
