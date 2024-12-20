@@ -25,6 +25,8 @@ const wolfRunLeft = "./assets/werewolf/Run_left.png";
 const stars = "./assets/collectibles/1.png";
 const coins = "./assets/collectibles/2.png";
 
+const explosion = "./assets/explosion/explosion_blue.png";
+
 function createImage(imageSrc) {
   const image = new Image();
   image.src = imageSrc;
@@ -60,6 +62,8 @@ let wolfRunLeftImage = createImage(wolfRunLeft);
 let collectibleStars = createImage(stars);
 let collectibleCoins = createImage(coins);
 
+let explosionImage = createImage(explosion);
+
 class Player {
   constructor() {
     this.position = {
@@ -73,7 +77,7 @@ class Player {
       x: 0,
       y: 0,
     };
-    this.speed = 10;
+    this.speed = 5;
 
     this.image = spriteIdleRightImage;
 
@@ -194,6 +198,60 @@ class Enemy {
   }
 }
 
+class Explosion {
+  constructor({ position, velocity, image }) {
+    this.position = {
+      x: position.x,
+      y: position.y,
+    };
+
+    this.velocity = {
+      x: velocity.x,
+      y: velocity.y,
+    };
+
+    this.width = 200;
+    this.height = 200;
+
+    this.image = image;
+
+    this.frames = 0;
+    this.frameInterval = 10;
+    this.frameTimer = 0;
+  }
+
+  draw() {
+    ctx.drawImage(
+      this.image,
+      this.frames * 760,
+      0,
+      760,
+      760,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height
+    );
+  }
+
+  update() {
+    this.frameTimer++;
+    if (this.frameTimer % this.frameInterval === 0) {
+      this.frames++;
+      if (this.frames > this.image.width / this.height - 1) {
+        this.frames = 0;
+      }
+    }
+    this.draw();
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+
+    if (this.position.y + this.height + this.velocity.y <= canvas.height) {
+      this.velocity.y = 0;
+    }
+  }
+}
+
 class Collectible {
   constructor({ position, velocity, image, value = 1, type = "coin" }) {
     this.position = {
@@ -298,6 +356,7 @@ let platforms = [];
 let genericObjects = [];
 let collectibles = [];
 let enemies = [];
+let explosions = [];
 let score = 0;
 
 let lastKey;
@@ -404,13 +463,27 @@ function animate() {
   genericObjects.forEach((genericObject) => genericObject.update());
   platforms.forEach((platform) => platform.update());
 
+  // enemies and explosions
   enemies.forEach((enemy, index) => {
     enemy.update();
+
+    // Enemy stomping logic
     if (collisionTop({ object1: player, object2: enemy })) {
       player.velocity.y -= 30; // player bounces up when jumping on enemy
+
+      // ** Create an explosion at the enemy's position **
+      explosions.push(
+        new Explosion({
+          position: { x: enemy.position.x, y: enemy.position.y },
+          velocity: { x: 0, y: 0 }, // Explosion is stationary
+          image: explosionImage,
+        })
+      );
+
       setTimeout(() => {
-        enemies.splice(index, 1), 0; // make sure dont get any flash of other contents
-      });
+        enemies.splice(index, 1);
+      }, 0);
+      
     } else if (
       player.position.x + 50 >= enemy.position.x &&
       player.position.x <= enemy.position.x + 50 &&
@@ -418,6 +491,16 @@ function animate() {
       player.position.y <= enemy.position.y
     ) {
       init();
+    }
+  });
+
+  explosions.forEach((explosion, index) => {
+    explosion.update();
+    // Remove explosion once it has completed all frames
+    if (explosion.frames > explosion.image.width / explosion.height - 1) {
+      setTimeout(() => {
+        explosions.splice(index, 1);
+      }, 500);
     }
   });
 
@@ -434,7 +517,6 @@ function animate() {
       // Add the collectible's value to the player's score
       player.score += collectible.value;
 
-      // Remove collectible when touched
       setTimeout(() => {
         collectibles.splice(index, 1);
       }, 0);
@@ -469,6 +551,8 @@ function animate() {
       collectibles.forEach(
         (collectible) => (collectible.position.x -= player.speed)
       );
+
+      explosions.forEach((explosion) => (explosion.position.x -= player.speed));
     } else if (keys.left.pressed && scrollOffset > 0) {
       scrollOffset -= player.speed;
 
@@ -484,6 +568,8 @@ function animate() {
       collectibles.forEach(
         (collectible) => (collectible.position.x += player.speed)
       );
+
+      explosions.forEach((explosion) => (explosion.position.x += player.speed));
     }
   }
 
