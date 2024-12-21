@@ -503,7 +503,7 @@ function animate() {
     if (explosion.frames > explosion.image.width / explosion.height - 1) {
       setTimeout(() => {
         explosions.splice(index, 1);
-      },0);
+      }, 0);
     }
   });
 
@@ -531,14 +531,11 @@ function animate() {
   // Player movement logic
   if (keys.right.pressed && player.position.x < 400) {
     player.velocity.x = player.speed;
-  } else if (
-    (keys.left.pressed && player.position.x > 100) ||
-    (keys.left.pressed && scrollOffset === 0 && player.position.x > 0)
-  ) {
-    player.velocity.x =-player.speed;
+  } else if (keys.left.pressed && player.position.x > 200) {
+    player.velocity.x = -player.speed;
   } else {
     player.velocity.x = 0;
-    
+  
     // scrolling code
     if (keys.right.pressed) {
       scrollOffset += player.speed;
