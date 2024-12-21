@@ -153,7 +153,6 @@ class Enemy {
     position,
     velocity,
     image,
-    reverseimage,
     distance = {
       limit: 200,
       traveled: 0,
@@ -174,7 +173,6 @@ class Enemy {
 
     // Use the provided image parameter instead of a hardcoded image
     this.image = image;
-    this.reverseimage = reverseimage;
 
     this.frames = 0;
     this.frameInterval = 10;
@@ -183,12 +181,11 @@ class Enemy {
     this.distance = distance;
 
     this.sprites = 0;
-    this.currentSprite = this.image;
   }
 
   draw() {
     ctx.drawImage(
-      this.currentSprite,
+      this.image,
       128 * this.frames,
       0,
       128,
@@ -214,17 +211,6 @@ class Enemy {
 
     if (this.position.y + this.height + this.velocity.y <= canvas.height) {
       this.velocity.y += gravity;
-
-      // enemy walks back and forth
-      this.distance.traveled += Math.abs(this.velocity.x); // force the value to be positive
-
-      if (this.distance.traveled > this.distance.limit) {
-        this.distance.traveled = 0;
-        this.velocity.x = -this.velocity.x;
-
-        this.currentSprite =
-          this.velocity.x > 0 ? this.reverseimage : this.image;
-      }
     }
   }
 }
@@ -439,14 +425,12 @@ async function init() {
       velocity: { x: -1, y: 0 },
       distance: { limit: 300, traveled: 0 },
       image: wolfWalkLeftImage,
-      reverseimage: wolfWalkRightImage,
     }),
     new Enemy({
       position: { x: 1000, y: 100 },
       velocity: { x: -5, y: 0 },
       distance: { limit: 600, traveled: 0 },
       image: wolfRunLeftImage,
-      reverseimage: wolfRunRightImage,
     }),
   ];
 
