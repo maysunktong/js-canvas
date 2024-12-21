@@ -535,7 +535,7 @@ function animate() {
     (keys.left.pressed && player.position.x > 100) ||
     (keys.left.pressed && scrollOffset === 0 && player.position.x > 0)
   ) {
-    player.velocity.x = -player.speed;
+    player.velocity.x =-player.speed;
   } else {
     player.velocity.x = 0;
     
@@ -641,7 +641,7 @@ addEventListener("keydown", ({ keyCode }) => {
   console.log(keyCode);
   switch (keyCode) {
     case 87:
-      if (player.jumpCount < 2) {
+      if (player.jumpCount < 1) {
         player.velocity.y = -20; // Perform jump
         player.jumpCount++;
       }
