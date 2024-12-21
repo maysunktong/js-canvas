@@ -21,7 +21,10 @@ const spriteJumpLeft = "./assets/swordman/Jump_left.png";
 const spriteJumpRight = "./assets/swordman/Jump_right.png";
 
 const wolfWalkLeft = "./assets/werewolf/walk_left.png";
+const wolfWalkRight = "./assets/werewolf/walk.png";
 const wolfRunLeft = "./assets/werewolf/Run_left.png";
+const wolfRunRight = "./assets/werewolf/Run_right.png";
+
 const stars = "./assets/collectibles/1.png";
 const coins = "./assets/collectibles/2.png";
 
@@ -57,7 +60,9 @@ let spriteJumpLeftImage = createImage(spriteJumpLeft);
 let spriteJumpRightImage = createImage(spriteJumpRight);
 
 let wolfWalkLeftImage = createImage(wolfWalkLeft);
+let wolfWalkRightImage = createImage(wolfWalkRight);
 let wolfRunLeftImage = createImage(wolfRunLeft);
+let wolfRunRightImage = createImage(wolfRunRight);
 
 let collectibleStars = createImage(stars);
 let collectibleCoins = createImage(coins);
@@ -144,7 +149,15 @@ class Player {
 }
 
 class Enemy {
-  constructor({ position, velocity, image }) {
+  constructor({
+    position,
+    velocity,
+    image,
+    distance = {
+      limit: 200,
+      traveled: 0,
+    },
+  }) {
     this.position = {
       x: position.x,
       y: position.y,
@@ -164,6 +177,10 @@ class Enemy {
     this.frames = 0;
     this.frameInterval = 10;
     this.frameTimer = 0;
+
+    this.distance = distance;
+
+    this.sprites = 0
   }
 
   draw() {
@@ -194,6 +211,18 @@ class Enemy {
 
     if (this.position.y + this.height + this.velocity.y <= canvas.height) {
       this.velocity.y += gravity;
+
+      // enemy walks back and forth
+      this.distance.traveled += Math.abs(this.velocity.x); // force the value to be positive
+
+      if (this.distance.traveled > this.distance.limit) {
+        this.distance.traveled = 0;
+        this.velocity.x = -this.velocity.x;
+
+        // Update the enemy image based on the new direction
+        this.image =
+          this.velocity.x > 0 ? wolfWalkRightImage : wolfWalkLeftImage;
+      }
     }
   }
 }
@@ -313,6 +342,10 @@ class Platform {
     this.image = image;
     this.width = image.width;
     this.height = image.height;
+
+    this.velocity = {
+      x: 0,
+    };
   }
 
   draw() {
@@ -321,9 +354,7 @@ class Platform {
 
   update() {
     this.draw();
-    if (this.position.x + this.width <= 0) {
-      this.position.x += this.width * 2;
-    }
+    this.position.x += this.velocity.x;
   }
 }
 
@@ -394,7 +425,9 @@ function collisionTop({ object1, object2 }) {
 // initializing the game: restart
 async function init() {
   platformImage = await createImageAsync(platform);
+  backgroundImage = await createImageAsync(background);
 
+  // player rendering
   player = new Player();
 
   // enemy speed
@@ -402,27 +435,41 @@ async function init() {
     new Enemy({
       position: { x: 800, y: 100 },
       velocity: { x: -1, y: 0 },
+      distance: { limit: 300, traveled: 0 },
       image: wolfWalkLeftImage,
     }),
     new Enemy({
       position: { x: 1000, y: 100 },
-      velocity: { x: -1, y: 0 },
-      image: wolfWalkLeftImage,
+      velocity: { x: -5, y: 0 },
+      distance: { limit: 600, traveled: 0 },
+      image: wolfRunLeftImage,
     }),
   ];
 
-  for (let i = 0; i < 10; i++) {
-    platforms.push(
-      new Platform({
-        x: i * platformImage.width,
-        y: 500,
-        image: platformImage,
-      })
-    );
-  }
+  platforms = [
+    new Platform({
+      x: 0,
+      y: 500,
+      image: platformImage,
+    }),
+    new Platform({
+      x: platformImage.width,
+      y: 500,
+      image: platformImage,
+    }),
+    new Platform({
+      x: platformImage.width * 2 + 200,
+      y: 500,
+      image: platformImage,
+    }),
+    new Platform({
+      x: platformImage.width * 3 + 400,
+      y: 500,
+      image: platformImage,
+    }),
+  ];
 
-  backgroundImage = await createImageAsync(background);
-  // Create two background images to achieve the looping effect
+  // loop background
   for (let i = 0; i < 2; i++) {
     genericObjects.push(
       new GenericObject({
@@ -461,7 +508,11 @@ function animate() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   genericObjects.forEach((genericObject) => genericObject.update());
-  platforms.forEach((platform) => platform.update());
+
+  platforms.forEach((platform) => {
+    platform.update();
+    platform.velocity.x = 0;
+  });
 
   // enemies and explosions
   enemies.forEach((enemy, index) => {
@@ -535,7 +586,7 @@ function animate() {
     player.velocity.x = -player.speed;
   } else {
     player.velocity.x = 0;
-  
+
     // scrolling code
     if (keys.right.pressed) {
       scrollOffset += player.speed;
