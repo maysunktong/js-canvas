@@ -21,9 +21,7 @@ const spriteJumpLeft = "./assets/swordman/Jump_left.png";
 const spriteJumpRight = "./assets/swordman/Jump_right.png";
 
 const wolfWalkLeft = "./assets/werewolf/walk_left.png";
-const wolfWalkRight = "./assets/werewolf/walk.png";
 const wolfRunLeft = "./assets/werewolf/Run_left.png";
-const wolfRunRight = "./assets/werewolf/Run_right.png";
 
 const stars = "./assets/collectibles/1.png";
 const coins = "./assets/collectibles/2.png";
@@ -60,9 +58,7 @@ let spriteJumpLeftImage = createImage(spriteJumpLeft);
 let spriteJumpRightImage = createImage(spriteJumpRight);
 
 let wolfWalkLeftImage = createImage(wolfWalkLeft);
-let wolfWalkRightImage = createImage(wolfWalkRight);
 let wolfRunLeftImage = createImage(wolfRunLeft);
-let wolfRunRightImage = createImage(wolfRunRight);
 
 let collectibleStars = createImage(stars);
 let collectibleCoins = createImage(coins);
@@ -170,8 +166,7 @@ class Enemy {
 
     this.width = 128;
     this.height = 128;
-
-    // Use the provided image parameter instead of a hardcoded image
+    
     this.image = image;
 
     this.frames = 0;
