@@ -531,7 +531,7 @@ function animate() {
   // Player movement logic
   if (keys.right.pressed && player.position.x < 400) {
     player.velocity.x = player.speed;
-  } else if (keys.left.pressed && player.position.x > 200) {
+  } else if (keys.left.pressed && player.position.x > 0) {
     player.velocity.x = -player.speed;
   } else {
     player.velocity.x = 0;
@@ -554,7 +554,7 @@ function animate() {
       );
 
       explosions.forEach((explosion) => (explosion.position.x -= player.speed));
-    } else if (keys.left.pressed && scrollOffset > 0) {
+    } else if (keys.left.pressed && scrollOffset < 0) {
       scrollOffset -= player.speed;
 
       platforms.forEach((platform) => (platform.position.x += player.speed));
