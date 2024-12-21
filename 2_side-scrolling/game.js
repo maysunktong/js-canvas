@@ -183,11 +183,12 @@ class Enemy {
     this.distance = distance;
 
     this.sprites = 0;
+    this.currentSprite = this.image;
   }
 
   draw() {
     ctx.drawImage(
-      this.image,
+      this.currentSprite,
       128 * this.frames,
       0,
       128,
@@ -221,7 +222,8 @@ class Enemy {
         this.distance.traveled = 0;
         this.velocity.x = -this.velocity.x;
 
-        this.image = this.velocity.x > 0 ? this.reverseimage : this.image;
+        this.currentSprite =
+          this.velocity.x > 0 ? this.reverseimage : this.image;
       }
     }
   }
