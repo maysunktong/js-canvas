@@ -153,6 +153,7 @@ class Enemy {
     position,
     velocity,
     image,
+    reverseimage,
     distance = {
       limit: 200,
       traveled: 0,
@@ -173,6 +174,7 @@ class Enemy {
 
     // Use the provided image parameter instead of a hardcoded image
     this.image = image;
+    this.reverseimage = reverseimage;
 
     this.frames = 0;
     this.frameInterval = 10;
@@ -180,7 +182,7 @@ class Enemy {
 
     this.distance = distance;
 
-    this.sprites = 0
+    this.sprites = 0;
   }
 
   draw() {
@@ -219,9 +221,7 @@ class Enemy {
         this.distance.traveled = 0;
         this.velocity.x = -this.velocity.x;
 
-        // Update the enemy image based on the new direction
-        this.image =
-          this.velocity.x > 0 ? wolfWalkRightImage : wolfWalkLeftImage;
+        this.image = this.velocity.x > 0 ? this.reverseimage : this.image;
       }
     }
   }
@@ -437,12 +437,14 @@ async function init() {
       velocity: { x: -1, y: 0 },
       distance: { limit: 300, traveled: 0 },
       image: wolfWalkLeftImage,
+      reverseimage: wolfWalkRightImage,
     }),
     new Enemy({
       position: { x: 1000, y: 100 },
       velocity: { x: -5, y: 0 },
       distance: { limit: 600, traveled: 0 },
       image: wolfRunLeftImage,
+      reverseimage: wolfRunRightImage,
     }),
   ];
 
