@@ -7,10 +7,8 @@ canvas.height = 576;
 const gravity = 1;
 
 const platform = "./assets/platform.png";
-const trees = "./assets/trees.png";
 const background = "./assets/bg.png";
-const rocks = "./assets/rocks.png";
-
+const block = "./assets/Pillar_01.png";
 
 const spriteIdleLeft = "./assets/swordman/Idle_left.png";
 const spriteIdleRight = "./assets/swordman/Idle_right.png";
@@ -21,7 +19,7 @@ const spriteJumpRight = "./assets/swordman/Jump_right.png";
 
 const wolfWalkLeft = "./assets/werewolf/walk_left.png";
 const wolfRunLeft = "./assets/werewolf/Run_left.png";
-const wolfAttackLeft = "./assets/werewolf/attack_left.png"
+const wolfAttackLeft = "./assets/werewolf/attack_left.png";
 
 const stars = "./assets/collectibles/1.png";
 const coins = "./assets/collectibles/2.png";
@@ -45,9 +43,9 @@ function createImageAsync(imageSrc) {
 }
 
 let platformImage;
-let treesImage = createImage(trees);
-let rocksImage = createImage(rocks);
 let backgroundImage;
+let blockImage;
+
 let spriteIdleLeftImage = createImage(spriteIdleLeft);
 let spriteIdleRightImage = createImage(spriteIdleRight);
 let spriteRunLeftImage = createImage(spriteRunLeft);
@@ -57,7 +55,7 @@ let spriteJumpRightImage = createImage(spriteJumpRight);
 
 let wolfWalkLeftImage = createImage(wolfWalkLeft);
 let wolfRunLeftImage = createImage(wolfRunLeft);
-let wolfAttackLeftImage = createImage(wolfAttackLeft)
+let wolfAttackLeftImage = createImage(wolfAttackLeft);
 
 let collectibleStars = createImage(stars);
 let collectibleCoins = createImage(coins);
@@ -89,11 +87,7 @@ class Player {
       run: {
         right: spriteRunRightImage,
         left: spriteRunLeftImage,
-      },
-      jump: {
-        right: spriteJumpRightImage,
-        left: spriteJumpLeftImage,
-      },
+      }
     };
     this.currentSprite = this.sprites.idle.right;
     this.jumpCount = 0;
@@ -108,7 +102,7 @@ class Player {
   draw() {
     ctx.drawImage(
       this.currentSprite,
-      128 * this.frames, // croping image from (0,0)
+      this.width * this.frames, // croping image from (0,0)
       0,
       128,
       128,
@@ -117,17 +111,13 @@ class Player {
       this.width,
       this.height
     );
-
-    ctx.font = "30px Arial";
-    ctx.fillStyle = "white";
-    ctx.fillText(`Score: ${this.score}`, canvas.width - 150, 50);
   }
 
   update() {
     this.frameTimer++;
     if (this.frameTimer % this.frameInterval === 0) {
       this.frames++;
-      if (this.frames > this.image.width / this.height - 1) {
+      if (this.frames > this.image.width / this.height-1) {
         this.frames = 0;
       }
     }
@@ -249,17 +239,13 @@ class Explosion {
     this.frameTimer++;
     if (this.frameTimer % this.frameInterval === 0) {
       this.frames++;
-      if (this.frames > this.image.width / this.height - 1) {
-        this.frames = 0;
+      if (this.frames >= this.image.width / 760) {
+        this.finished = true; // Mark as finished when animation ends
       }
     }
     this.draw();
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
-
-    if (this.position.y + this.height + this.velocity.y <= canvas.height) {
-      this.velocity.y = 0;
-    }
   }
 }
 
@@ -316,7 +302,7 @@ class Collectible {
 }
 
 class Platform {
-  constructor({ x, y, image }) {
+  constructor({ x, y, image, block }) {
     this.position = {
       x,
       y,
@@ -328,6 +314,8 @@ class Platform {
     this.velocity = {
       x: 0,
     };
+
+    this.block = block;
   }
 
   draw() {
@@ -404,33 +392,40 @@ function collisionTop({ object1, object2 }) {
   );
 }
 
-function makeBlock({ object, platform }) {
-  return object.position.y <= platform.position.y + platform.height;
+function createBlock({ object, platform }) {
+  return (
+    object.position.y <= platform.position.y + platform.height &&
+    object.position.y - object.velocity.y >=
+      platform.position.y + platform.height &&
+    object.position.x + object.width >= platform.position.x &&
+    object.position.x <= platform.position.x + platform.width
+  );
 }
 
 // initializing the game: restart
 async function init() {
   platformImage = await createImageAsync(platform);
   backgroundImage = await createImageAsync(background);
+  blockImage = await createImageAsync(block);
 
   // player rendering
   player = new Player();
 
   // enemy speed
-  // enemies = [
-  //   new Enemy({
-  //     position: { x: 800, y: 100 },
-  //     velocity: { x: -1, y: 0 },
-  //     distance: { limit: 300, traveled: 0 },
-  //     image: wolfWalkLeftImage,
-  //   }),
-  //   new Enemy({
-  //     position: { x: 1000, y: 100 },
-  //     velocity: { x: -5, y: 0 },
-  //     distance: { limit: 600, traveled: 0 },
-  //     image: wolfRunLeftImage,
-  //   }),
-  // ];
+  enemies = [
+    new Enemy({
+      position: { x: 800, y: 100 },
+      velocity: { x: -1, y: 0 },
+      distance: { limit: 300, traveled: 0 },
+      image: wolfWalkLeftImage,
+    }),
+    new Enemy({
+      position: { x: 1000, y: 100 },
+      velocity: { x: -5, y: 0 },
+      distance: { limit: 600, traveled: 0 },
+      image: wolfRunLeftImage,
+    }),
+  ];
 
   platforms = [
     new Platform({
@@ -452,6 +447,11 @@ async function init() {
       x: platformImage.width * 3 + 400,
       y: 500,
       image: platformImage,
+    }),
+    new Platform({
+      x: 500,
+      y: 300,
+      image: blockImage,
     }),
   ];
 
@@ -525,8 +525,8 @@ function animate() {
         explosions.splice(index, 1);
       }, 500);
     } else if (
-      player.position.x + 50 >= enemy.position.x &&
-      player.position.x <= enemy.position.x + 50 &&
+      player.position.x >= enemy.position.x &&
+      player.position.x <= enemy.position.x&&
       player.position.y >= enemy.position.y &&
       player.position.y <= enemy.position.y
     ) {
@@ -540,7 +540,7 @@ function animate() {
     if (explosion.frames > explosion.image.width / explosion.height - 1) {
       setTimeout(() => {
         explosions.splice(index, 1);
-      }, 0);
+      }, 500);
     }
   });
 
@@ -616,6 +616,16 @@ function animate() {
     if (isOnTop({ object: player, platform })) {
       player.velocity.y = 0;
       player.jumpCount = 0;
+    }
+
+    if (
+      platform.block &&
+      createBlock({
+        object: player,
+        platform,
+      })
+    ) {
+      player.velocity.y = -player.velocity.y;
     }
 
     enemies.forEach((enemy) => {
