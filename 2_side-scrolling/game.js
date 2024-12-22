@@ -10,8 +10,7 @@ const platform = "./assets/platform.png";
 const trees = "./assets/trees.png";
 const background = "./assets/bg.png";
 const rocks = "./assets/rocks.png";
-const levelLeft = "./assets/platformers/Ground_04.png";
-const levelRight = "./assets/platformers/Ground_08.png";
+
 
 const spriteIdleLeft = "./assets/swordman/Idle_left.png";
 const spriteIdleRight = "./assets/swordman/Idle_right.png";
@@ -22,6 +21,7 @@ const spriteJumpRight = "./assets/swordman/Jump_right.png";
 
 const wolfWalkLeft = "./assets/werewolf/walk_left.png";
 const wolfRunLeft = "./assets/werewolf/Run_left.png";
+const wolfAttackLeft = "./assets/werewolf/attack_left.png"
 
 const stars = "./assets/collectibles/1.png";
 const coins = "./assets/collectibles/2.png";
@@ -48,8 +48,6 @@ let platformImage;
 let treesImage = createImage(trees);
 let rocksImage = createImage(rocks);
 let backgroundImage;
-let levelLeftImage = createImage(levelLeft);
-let levelRightImage = createImage(levelRight);
 let spriteIdleLeftImage = createImage(spriteIdleLeft);
 let spriteIdleRightImage = createImage(spriteIdleRight);
 let spriteRunLeftImage = createImage(spriteRunLeft);
@@ -59,6 +57,7 @@ let spriteJumpRightImage = createImage(spriteJumpRight);
 
 let wolfWalkLeftImage = createImage(wolfWalkLeft);
 let wolfRunLeftImage = createImage(wolfRunLeft);
+let wolfAttackLeftImage = createImage(wolfAttackLeft)
 
 let collectibleStars = createImage(stars);
 let collectibleCoins = createImage(coins);
@@ -166,7 +165,7 @@ class Enemy {
 
     this.width = 128;
     this.height = 128;
-    
+
     this.image = image;
 
     this.frames = 0;
@@ -405,6 +404,10 @@ function collisionTop({ object1, object2 }) {
   );
 }
 
+function makeBlock({ object, platform }) {
+  return object.position.y <= platform.position.y + platform.height;
+}
+
 // initializing the game: restart
 async function init() {
   platformImage = await createImageAsync(platform);
@@ -414,20 +417,20 @@ async function init() {
   player = new Player();
 
   // enemy speed
-  enemies = [
-    new Enemy({
-      position: { x: 800, y: 100 },
-      velocity: { x: -1, y: 0 },
-      distance: { limit: 300, traveled: 0 },
-      image: wolfWalkLeftImage,
-    }),
-    new Enemy({
-      position: { x: 1000, y: 100 },
-      velocity: { x: -5, y: 0 },
-      distance: { limit: 600, traveled: 0 },
-      image: wolfRunLeftImage,
-    }),
-  ];
+  // enemies = [
+  //   new Enemy({
+  //     position: { x: 800, y: 100 },
+  //     velocity: { x: -1, y: 0 },
+  //     distance: { limit: 300, traveled: 0 },
+  //     image: wolfWalkLeftImage,
+  //   }),
+  //   new Enemy({
+  //     position: { x: 1000, y: 100 },
+  //     velocity: { x: -5, y: 0 },
+  //     distance: { limit: 600, traveled: 0 },
+  //     image: wolfRunLeftImage,
+  //   }),
+  // ];
 
   platforms = [
     new Platform({
@@ -693,11 +696,9 @@ addEventListener("keyup", ({ keyCode }) => {
     case 87:
       break;
     case 65:
-      console.log("left");
       keys.left.pressed = false;
       break;
     case 68:
-      console.log("right");
       keys.right.pressed = false;
       break;
   }
