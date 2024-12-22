@@ -87,7 +87,7 @@ class Player {
       run: {
         right: spriteRunRightImage,
         left: spriteRunLeftImage,
-      }
+      },
     };
     this.currentSprite = this.sprites.idle.right;
     this.jumpCount = 0;
@@ -117,7 +117,7 @@ class Player {
     this.frameTimer++;
     if (this.frameTimer % this.frameInterval === 0) {
       this.frames++;
-      if (this.frames > this.image.width / this.height-1) {
+      if (this.frames > this.image.width / this.height - 1) {
         this.frames = 0;
       }
     }
@@ -394,8 +394,8 @@ function collisionTop({ object1, object2 }) {
 
 function createBlock({ object, platform }) {
   return (
-    object.position.y <= platform.position.y + platform.height &&
-    object.position.y - object.velocity.y >=
+    object.position.y + (object.height - 80) <= platform.position.y + platform.height &&
+    object.position.y + (object.height - 80) - object.velocity.y >=
       platform.position.y + platform.height &&
     object.position.x + object.width >= platform.position.x &&
     object.position.x <= platform.position.x + platform.width
@@ -418,7 +418,7 @@ async function init() {
       velocity: { x: -1, y: 0 },
       distance: { limit: 300, traveled: 0 },
       image: wolfWalkLeftImage,
-    })
+    }),
   ];
 
   platforms = [
@@ -446,7 +446,7 @@ async function init() {
       x: 500,
       y: 300,
       image: blockImage,
-      block: true
+      block: true,
     }),
   ];
 
@@ -521,7 +521,7 @@ function animate() {
       }, 500);
     } else if (
       player.position.x >= enemy.position.x &&
-      player.position.x <= enemy.position.x&&
+      player.position.x <= enemy.position.x &&
       player.position.y >= enemy.position.y &&
       player.position.y <= enemy.position.y
     ) {
