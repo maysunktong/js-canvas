@@ -394,7 +394,8 @@ function collisionTop({ object1, object2 }) {
 
 function createBlock({ object, platform }) {
   return (
-    object.position.y + (object.height - 80) <= platform.position.y + platform.height &&
+    object.position.y + (object.height - 80) <=
+      platform.position.y + platform.height &&
     object.position.y + (object.height - 80) - object.velocity.y >=
       platform.position.y + platform.height &&
     object.position.x + object.width >= platform.position.x &&
@@ -663,9 +664,9 @@ function animate() {
   }
 
   // WIN condition
-  if (platformImage && scrollOffset > platformImage.width * 3 + 200) {
-    console.log("You win");
-  }
+  // if (platformImage && scrollOffset > platformImage.width * 3 + 200) {
+  //   console.log("You win");
+  // }
 
   // LOSE condition: death pits
   if (player.position.y > canvas.height) {
