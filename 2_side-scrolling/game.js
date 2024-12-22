@@ -418,13 +418,7 @@ async function init() {
       velocity: { x: -1, y: 0 },
       distance: { limit: 300, traveled: 0 },
       image: wolfWalkLeftImage,
-    }),
-    new Enemy({
-      position: { x: 1000, y: 100 },
-      velocity: { x: -5, y: 0 },
-      distance: { limit: 600, traveled: 0 },
-      image: wolfRunLeftImage,
-    }),
+    })
   ];
 
   platforms = [
@@ -452,6 +446,7 @@ async function init() {
       x: 500,
       y: 300,
       image: blockImage,
+      block: true
     }),
   ];
 
