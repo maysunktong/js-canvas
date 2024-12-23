@@ -521,8 +521,8 @@ function animate() {
         explosions.splice(index, 1);
       }, 500);
     } else if (
-      player.position.x >= enemy.position.x &&
-      player.position.x <= enemy.position.x &&
+      player.position.x + 50 >= enemy.position.x &&
+      player.position.x <= enemy.position.x +50 &&
       player.position.y >= enemy.position.y &&
       player.position.y <= enemy.position.y
     ) {
