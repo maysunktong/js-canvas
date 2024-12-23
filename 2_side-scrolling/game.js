@@ -402,8 +402,8 @@ function createBlock({ object, platform }) {
       platform.position.y + platform.height &&
     object.position.y + (object.height - 80) - object.velocity.y >=
       platform.position.y + platform.height &&
-    object.position.x + object.width >= platform.position.x &&
-    object.position.x <= platform.position.x + platform.width
+    object.position.x + (object.width-50) >= platform.position.x &&
+    object.position.x+ (object.width-50) <= platform.position.x + platform.width
   );
 }
 
@@ -686,7 +686,7 @@ addEventListener("keydown", ({ keyCode }) => {
   switch (keyCode) {
     case 87:
       if (player.jumpCount < 1) {
-        player.velocity.y = -20; // Perform jump
+        player.velocity.y = -30; // Perform jump
         player.jumpCount++;
       }
       break;
