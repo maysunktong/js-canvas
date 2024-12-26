@@ -25,6 +25,9 @@ const stars = "./assets/collectibles/1.png";
 const coins = "./assets/collectibles/2.png";
 
 const explosion = "./assets/explosion/explosion_blue.png";
+const cheese = "./assets/bites/cheese.png";
+const steak = "./assets/bites/steak.png";
+const potion = "./assets/bites/potion.png";
 
 function createImage(imageSrc) {
   const image = new Image();
@@ -178,6 +181,62 @@ class Enemy {
       0,
       128,
       128,
+      this.position.x,
+      this.position.y,
+      this.width,
+      this.height
+    );
+  }
+
+  update() {
+    this.frameTimer++;
+    if (this.frameTimer % this.frameInterval === 0) {
+      this.frames++;
+      if (this.frames > this.image.width / this.height - 1) {
+        this.frames = 0;
+      }
+    }
+    this.draw();
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+
+    if (this.position.y + this.height + this.velocity.y <= canvas.height) {
+      this.velocity.y += gravity;
+    }
+  }
+}
+
+class GrowthBite {
+  constructor({ position, velocity, image }) {
+    this.position = {
+      x: position.x,
+      y: position.y,
+    };
+
+    this.velocity = {
+      x: velocity.x,
+      y: velocity.y,
+    };
+
+    this.width = 50;
+    this.height = 50;
+
+    this.image = image;
+
+    this.frames = 0;
+    this.frameInterval = 10;
+    this.frameTimer = 0;
+
+    this.sprites = 0;
+  }
+
+  draw() {
+    ctx.drawImage(
+      this.image,
+      32 * this.frames,
+      0,
+      32,
+      32,
       this.position.x,
       this.position.y,
       this.width,
@@ -362,6 +421,7 @@ let genericObjects = [];
 let collectibles = [];
 let enemies = [];
 let explosions = [];
+let growthBites = [];
 let score = 0;
 
 let lastKey;
@@ -402,8 +462,9 @@ function createBlock({ object, platform }) {
       platform.position.y + platform.height &&
     object.position.y + (object.height - 80) - object.velocity.y >=
       platform.position.y + platform.height &&
-    object.position.x + (object.width-50) >= platform.position.x &&
-    object.position.x+ (object.width-50) <= platform.position.x + platform.width
+    object.position.x + (object.width - 50) >= platform.position.x &&
+    object.position.x + (object.width - 50) <=
+      platform.position.x + platform.width
   );
 }
 
@@ -455,6 +516,14 @@ async function init() {
     }),
   ];
 
+  growthBites = [
+    new GrowthBite({
+      position: { x: 300, y: 100 },
+      velocity: { x: 0, y: 0 },
+      image: createImage(steak),
+    }),
+  ];
+
   // loop background
   for (let i = 0; i < 2; i++) {
     genericObjects.push(
@@ -500,6 +569,10 @@ function animate() {
     platform.velocity.x = 0;
   });
 
+  growthBites.forEach((growthBite) => {
+    growthBite.update();
+  });
+
   // enemies and explosions
   enemies.forEach((enemy, index) => {
     enemy.update();
@@ -526,7 +599,7 @@ function animate() {
       }, 500);
     } else if (
       player.position.x + 50 >= enemy.position.x &&
-      player.position.x <= enemy.position.x +50 &&
+      player.position.x <= enemy.position.x + 50 &&
       player.position.y >= enemy.position.y &&
       player.position.y <= enemy.position.y
     ) {
@@ -591,6 +664,10 @@ function animate() {
       );
 
       explosions.forEach((explosion) => (explosion.position.x -= player.speed));
+
+      growthBites.forEach(
+        (growthBite) => (growthBite.position.x -= player.speed)
+      );
     } else if (keys.left.pressed && scrollOffset < 0) {
       scrollOffset -= player.speed;
 
@@ -608,6 +685,10 @@ function animate() {
       );
 
       explosions.forEach((explosion) => (explosion.position.x += player.speed));
+
+      growthBites.forEach(
+        (growthBite) => (growthBite.position.x += player.speed)
+      );
     }
   }
 
@@ -636,6 +717,16 @@ function animate() {
         })
       )
         enemy.velocity.y = 0;
+    });
+
+    growthBites.forEach((growthBite) => {
+      if (
+        isOnTop({
+          object: growthBite,
+          platform,
+        })
+      )
+        growthBite.velocity.y = 0;
     });
   });
 
