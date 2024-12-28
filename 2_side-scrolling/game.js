@@ -107,8 +107,8 @@ class Player {
       this.currentSprite,
       this.width * this.frames, // croping image from (0,0)
       0,
-      128,
-      128,
+      this.width,
+      this.height,
       this.position.x,
       this.position.y,
       this.width,
@@ -177,10 +177,10 @@ class Enemy {
   draw() {
     ctx.drawImage(
       this.image,
-      128 * this.frames,
+      this.width * this.frames, 
       0,
-      128,
-      128,
+      this.width,
+      this.height,
       this.position.x,
       this.position.y,
       this.width,
@@ -287,7 +287,7 @@ class Explosion {
   draw() {
     ctx.drawImage(
       this.image,
-      this.frames * 760,
+      760 * this.frames,
       0,
       760,
       760,
@@ -303,7 +303,7 @@ class Explosion {
     if (this.frameTimer % this.frameInterval === 0) {
       this.frames++;
       if (this.frames >= this.image.width / 760) {
-        this.finished = true; // Mark as finished when animation ends
+        this.frames = 0
       }
     }
     this.draw();
@@ -324,12 +324,12 @@ class Collectible {
       y: velocity.y,
     };
 
-    this.width = 32; // Default size, can be changed later
+    this.width = 32;
     this.height = 32;
 
     this.image = image;
-    this.type = type; // Can be 'coin', 'health', 'power-up', etc.
-    this.value = value; // The value of the collectible
+    this.type = type; 
+    this.value = value; 
 
     this.frames = 0;
     this.frameInterval = 10;
